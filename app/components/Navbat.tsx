@@ -7,8 +7,8 @@ import { useTheme } from "next-themes";
 
 const navLinks = [
   { label: "Home", href: "/" },
-  { label: "Projects", href: "/" },
-  { label: "Blog", href: "/" },
+  { label: "Resume", href: "#resume" },
+  { label: "Projects", href: "#pastProject" },
   { label: "Contact", href: "/" },
 ];
 
@@ -21,7 +21,7 @@ export default function Navbar() {
   if (!mounted) return null; // Prevent hydration mismatch
 
   return (
-    <header className="w-full shadow-sm bg-header sticky top-0 z-50">
+    <header className="w-full shadow-sm bg-header sticky top-0 z-50 mx-auto ">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="text-2xl font-bold">
@@ -32,7 +32,7 @@ export default function Navbar() {
         <nav className="hidden md:flex gap-6 items-center">
           {navLinks.map((link) => (
             <Link
-              key={link.href}
+              key={link.label}
               href={link.href}
               className="  hover:text-blue-600 transition"
             >
@@ -81,7 +81,7 @@ export default function Navbar() {
               className="flex items-center gap-2 text-gray-700 dark:text-gray-200 mt-4"
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+              
             </button>
           </nav>
         </div>
