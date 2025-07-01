@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import LandingSection from "./components/LandingSection";
 import ServicesSection from "./components/ServicesSection";
 import PastProject from "./components/PastProject";
+import ContactUs from "./components/ContactUS";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -17,6 +18,7 @@ export default function Home() {
     <LandingSection/>
     <ServicesSection/>
     <PastProject/>
+    <ContactUs/>
    </div>
   );
 }

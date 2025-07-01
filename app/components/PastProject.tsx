@@ -22,16 +22,16 @@ const projects: Project[] = [
     description:
       "A responsive admin dashboard built with Next.js and Tailwind CSS.",
     image: "/portfolio.png",
-    techStack: ["Next.js", "Tailwind CSS", "TypeScript","Netlify"],
-    liveLink: "https://yourapp.com",
-    repoLink: "https://github.com/yourrepo",
+    techStack: ["Next.js", "Tailwind CSS", "TypeScript","Netlify", "GSAP",],
+    liveLink: "https://hassansibtain.dev/",
+    repoLink: "https://github.com/hsibtain18/main-portfolio",
   },
   {
     title: "Ectorious",
     description: "Full-stack online store with payment integration.",
     image: "/ectorious.png",
     techStack: ["NextJs", "ReactJS", "GSAP", "TypeScript","Tailwind CSS",],
-    liveLink: "https://store.com",
+    liveLink: "https://ectorious.com/",
     repoLink: "https://github.com/store-repo",
   },
 ];
