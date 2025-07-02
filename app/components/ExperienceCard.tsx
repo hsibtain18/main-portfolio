@@ -1,4 +1,4 @@
-
+// ExperienceCard.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -24,10 +24,8 @@ export default function ExperienceCard({
 }: ExperienceCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const tiltRef = useRef<HTMLDivElement>(null);
-  const iconRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [open, setOpen] = useState(false);
 
-  // Scroll animation
   useEffect(() => {
     if (!cardRef.current) return;
     gsap.fromTo(
@@ -50,24 +48,19 @@ export default function ExperienceCard({
     );
   }, [direction]);
 
-  // Resize animation
   useEffect(() => {
     if (cardRef.current) {
       gsap.to(cardRef.current, {
-        width: "100%",
+        width: open ? "100%" : "100%",
         maxWidth: open ? "94%" : "28rem",
-        height: "auto",
+        height: open ? "auto" : "auto",
         duration: 0.5,
         ease: "power2.inOut",
       });
     }
-    document.body.style.overflow = open ? "hidden" : "auto";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
   }, [open]);
+  const iconRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Animate tech icons
   useEffect(() => {
     if (open && iconRefs.current.length) {
       iconRefs.current.forEach((icon, i) => {
@@ -88,7 +81,6 @@ export default function ExperienceCard({
       });
     }
   }, [open]);
-
   // Tilt effect on hover (desktop only)
   useEffect(() => {
     const el = tiltRef.current;
@@ -135,27 +127,22 @@ export default function ExperienceCard({
       el.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, [open]);
-
   return (
     <>
-      {open && <div className="fixed inset-0 z-40 backdrop-blur-sm"></div>}
-
+      {open && (
+        <div className="fixed inset-0 z-40 backdrop-blur-sm bg-black/30 h-full"></div>
+      )}
       <div
-        ref={(el) => {
-          cardRef.current = el;
-          tiltRef.current = el;
-        }}
+        ref={cardRef}
         onClick={() => setOpen(true)}
-        className={`relative border transform transition-transform bg-white dark:bg-zinc-900 shadow-lg rounded-xl p-6 w-full ${
-          open
-            ? "z-50 fixed inset-0 overflow-auto m-4 md:m-12"
-            : "max-w-md cursor-pointer hover:-translate-y-1 hover:shadow-2xl will-change-transform transform-style-preserve-3d hover:shadow-[0_12px_25px_rgba(0,123,255,0.25)]"
+        className={`border  backdrop-blur-sm  transform transition-transform hover:-translate-y-1 hover:shadow-2xl bg-white dark:bg-zinc-900 shadow-lg rounded-xl p-6  ${
+          open ? "z-50 fixed inset-0 overflow-auto m-4 md:m-12" : "max-w-md"
         }`}
       >
         {open && (
           <button
             onClick={(e) => {
-              e.stopPropagation();
+              e.stopPropagation(); // <--- This is the key change
               setOpen(false);
             }}
             className="absolute cursor-pointer top-4 right-4 z-50 text-gray-500 hover:text-red-500 text-2xl"
@@ -164,7 +151,6 @@ export default function ExperienceCard({
             &times;
           </button>
         )}
-
         {open ? (
           <div className="grid md:grid-cols-2 gap-8">
             <div>
@@ -181,10 +167,13 @@ export default function ExperienceCard({
               <p className="font-medium text-lg">
                 End Date: {duration.split("–")[1].trim()}
               </p>
+              <p className="mt-4 italic text-sm text-gray-500 dark:text-gray-400">
+                Click anywhere to collapse.
+              </p>
               {techStack && (
                 <div className="flex flex-wrap gap-4 mt-6">
                   {(() => {
-                    iconRefs.current = [];
+                    iconRefs.current = []; // ✅ Clear old refs
                     return techStack.map((tech, i) => (
                       <div
                         key={tech.name}
@@ -217,7 +206,7 @@ export default function ExperienceCard({
             </div>
           </div>
         ) : (
-          <div>
+          <>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
               {title}
             </h3>
@@ -230,7 +219,7 @@ export default function ExperienceCard({
                 <li key={i}>{task}</li>
               ))}
             </ul>
-          </div>
+          </>
         )}
       </div>
     </>
