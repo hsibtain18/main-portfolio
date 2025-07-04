@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useTheme } from "next-themes";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -11,6 +12,7 @@ interface Project {
   title: string;
   description: string;
   image: string;
+  imageLight: string;
   techStack: string[];
   liveLink?: string;
   repoLink?: string;
@@ -20,17 +22,20 @@ const projects: Project[] = [
   {
     title: "Portfolio",
     description:
-      "A responsive admin dashboard built with Next.js and Tailwind CSS.",
+      "A modern, animated personal portfolio website built using Next.js, Tailwind CSS, TypeScript, and GSAP. Showcases my work, experience, and contact details with smooth scroll animations and dark mode support. Deployed on Netlify.",
     image: "/portfolio.png",
-    techStack: ["Next.js", "Tailwind CSS", "TypeScript","Netlify", "GSAP",],
+    imageLight: "/portfoliolight.png",
+    techStack: ["Next.js", "Tailwind CSS", "TypeScript", "Netlify", "GSAP"],
     liveLink: "https://hassansibtain.dev/",
     repoLink: "https://github.com/hsibtain18/main-portfolio",
   },
   {
     title: "Ectorious",
-    description: "Full-stack online store with payment integration.",
+    description:
+      "A brand-focused Amazon services platform built to showcase a team of Amazon specialists, PPC strategists, and brand managers. Designed to highlight Ectorious’ mission of driving success for Amazon sellers through data-driven insights, creative execution, and cutting-edge technology.",
+    imageLight: "/ectoriouslight.png",
     image: "/ectorious.png",
-    techStack: ["NextJs", "ReactJS", "GSAP", "TypeScript","Tailwind CSS",],
+    techStack: ["NextJs", "ReactJS", "GSAP", "TypeScript", "Tailwind CSS"],
     liveLink: "https://ectorious.com/",
     repoLink: "https://github.com/store-repo",
   },
@@ -39,7 +44,7 @@ const projects: Project[] = [
 export default function ProjectSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-
+  const { theme } = useTheme();
   useEffect(() => {
     if (!sectionRef.current) return;
     cardRefs.current.forEach((card, index) => {
@@ -67,7 +72,7 @@ export default function ProjectSection() {
     <section
       ref={sectionRef}
       className="py-20 px-6 md:px-12 max-w-7xl mx-auto"
-      id="pastProjects"
+      id="pastProject"
     >
       <h2 className="text-3xl md:text-4xl font-bold mb-12">Projects</h2>
       <div className="grid md:grid-cols-2 gap-12">
@@ -80,7 +85,7 @@ export default function ProjectSection() {
             className="bg-white dark:bg-zinc-900 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300"
           >
             <Image
-              src={project.image}
+              src={theme === 'dark'? project.image : project.imageLight}
               alt={project.title}
               width={800}
               height={450}

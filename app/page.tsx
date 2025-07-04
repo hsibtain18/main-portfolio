@@ -6,6 +6,7 @@ import LandingSection from "./components/LandingSection";
 import ServicesSection from "./components/ServicesSection";
 import PastProject from "./components/PastProject";
 import ContactUs from "./components/ContactUS";
+import TechStack from "./components/TechStacks";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -16,6 +17,7 @@ export default function Home() {
   return (
    <div>
     <LandingSection/>
+    <TechStack/>
     <ServicesSection/>
     <PastProject/>
     <ContactUs/>

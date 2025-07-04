@@ -52,34 +52,22 @@ export default function LandingSection() {
             </span>{" "}
             Hi I'm Syed Hassan Sibtain,
           </h1>
-          {/* <p className="text-[2.5rem]  text-gray-600 dark:text-gray-300 chela-font">
-            A Front-End Developer with <strong>6.5+ years of experience</strong>{" "}
-          </p>{" "}
-          <p className=" md:text-xl max-w-xl text-gray-600 dark:text-gray-300">
-            building scalable, high-performance web applications using{" "}
-            <strong className="chela-font text-[1.75rem]">Angular</strong>,{" "}
-            <strong className="chela-font text-[1.75rem]">React</strong>,{" "}
-            <strong className="chela-font text-[1.75rem]">NextJs</strong>, and{" "}
-            <strong className="chela-font text-[1.75rem]">Node.js</strong>. I specialize in
-            crafting interactive UIs, optimizing performance, and delivering
-            enterprise-grade solutions.
-          </p>
-           */}
+        
           <p className="md:text-[1.2rem]  text-gray-600 dark:text-gray-300">
             <span className="chela-font text-[1.75rem]">
               Front-End Developer
             </span>{" "}
             with <strong>6.5+ years of experience</strong> building scalable,
             high-performance web applications using{" "}
-            <strong className="chela-font text-[1.75rem]">Angular</strong>,{" "}
-            <strong className="chela-font text-[1.75rem]">React</strong>,{" "}
-            <strong className="chela-font text-[1.75rem]">NextJs</strong>, and{" "}
-            <strong className="chela-font text-[1.75rem]">Node.js</strong>. I
+            <span className="chela-font text-[1.35rem]">Angular</span>,{" "}
+            <span className="chela-font text-[1.35rem]">React</span>,{" "}
+            <span className="chela-font text-[1.35rem]">NextJs</span>, and{" "}
+            <span className="chela-font text-[1.35rem]">Node.js</span>. I
             specialize in crafting interactive UIs, optimizing performance, and
             delivering enterprise-grade solutions.
           </p>
           <Link
-            href="#"
+            href="#resume"
             className="mb- group relative inline-flex items-center justify-end overflow-hidden rounded-sm border border-indigo-600 px-8 py-3 text-indigo-600 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-indigo-400 dark:text-indigo-300 dark:hover:bg-indigo-900/20"
           >
             <span className="text-sm font-medium transition-all group-hover:ms-4">

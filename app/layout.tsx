@@ -15,10 +15,10 @@ const geistMono = Geist_Mono({
 });
 
 const chelaOne = Chela_One({
-  subsets: ['latin'],
-  weight: '400',
-  variable: '--font-chela-one',
-  display: 'swap',
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-chela-one",
+  display: "swap",
 });
 export const metadata: Metadata = {
   title: "Syed Hassan Sibtain",
@@ -31,7 +31,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning  className={chelaOne.variable}>
+    <html lang="en" suppressHydrationWarning className={chelaOne.variable}>
+      <head>
+        <script
+          src="https://assets.calendly.com/assets/external/widget.js"
+          type="text/javascript"
+          async
+        ></script>
+      </head>
       <body>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <Navbar />
