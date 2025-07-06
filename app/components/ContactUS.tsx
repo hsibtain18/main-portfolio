@@ -4,17 +4,9 @@ import { useRef, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import CalendlyPopup from "./CalendlyPopup";
 
 gsap.registerPlugin(ScrollTrigger);
-
-// Extend global window type for Calendly
-declare global {
-  interface Window {
-    Calendly?: {
-      initPopupWidget: (options: { url: string }) => void;
-    };
-  }
-}
 
 export default function ContactSection() {
   const containerRef = useRef(null);
@@ -23,10 +15,9 @@ export default function ContactSection() {
   useEffect(() => {
     gsap.fromTo(
       containerRef.current,
-      { opacity: 0, y: 40 },
+      { opacity: 0 },
       {
         opacity: 1,
-        y: 0,
         duration: 1,
         scrollTrigger: {
           trigger: containerRef.current,
@@ -65,8 +56,8 @@ export default function ContactSection() {
         toast.error("Failed to send message.");
       }
     } catch (err) {
-        console.log(err);
-        
+      console.log(err);
+
       toast.error("Something went wrong.");
     } finally {
       setLoading(false);
@@ -136,16 +127,7 @@ export default function ContactSection() {
             detail={<p>Dubai, United Arab Emirates</p>}
           />
 
-          <button
-            onClick={() =>
-              window.Calendly?.initPopupWidget({
-                url: "https://calendly.com/hsibtain18/30min",
-              })
-            }
-            className="bg-black dark:bg-white dark:text-black text-white px-6 py-3 mt-4 rounded-full hover:opacity-90 transition"
-          >
-            Schedule a 30min Call
-          </button>
+          <CalendlyPopup />
         </div>
 
         {/* Form Column */}
