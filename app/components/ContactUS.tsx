@@ -479,7 +479,7 @@ export default function ContactSection() {
                 >
                   hsibtain18@gmail.com
                 </a>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Send us a message!</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Send me a message!</p>
               </>
             }
           />
