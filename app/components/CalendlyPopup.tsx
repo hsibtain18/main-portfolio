@@ -87,28 +87,29 @@ export default function CalendlyPopup() {
         Schedule a Call
       </button>
 
-      {show && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div
-            ref={popupRef}
-            className="relative bg-white dark:bg-gray-900 rounded-xl w-full max-w-4xl h-[675px] p-4 shadow-lg overflow-hidden"
-          >
-            <button
-              onClick={() => setShow(false)}
-              className="absolute top-0.5 right-2.5 text-gray-500 hover:text-red-600 text-2xl font-bold z-10"
-              aria-label="Close"
-            >
-              &times;
-            </button>
+   {show && (
+  <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div
+      ref={popupRef}
+      className="relative bg-white dark:bg-gray-900 rounded-xl w-full sm:w-[90%] md:w-[750px] lg:w-[850px] h-[675px] p-4 shadow-lg overflow-hidden"
+    >
+      <button
+        onClick={() => setShow(false)}
+        className="absolute top-0.5 right-2.5 text-gray-500 hover:text-red-600 text-2xl font-bold z-10"
+        aria-label="Close"
+      >
+        &times;
+      </button>
 
-            <div
-              ref={containerRef}
-              className="h-full"
-              style={{ minWidth: "320px" }}
-            />
-          </div>
-        </div>
-      )}
+      <div
+        ref={containerRef}
+        className="h-full w-full"
+        style={{ minWidth: "320px" }}
+      />
+    </div>
+  </div>
+)}
+
     </>
   );
 }
