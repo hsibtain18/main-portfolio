@@ -1,17 +1,10 @@
-<svg x="0px" y="0px" width="960px" height="960px" viewBox="0 0 960 960" xmlns="http://www.w3.org/2000/svg">
-  <!-- Outer Circle -->
-  <circle
-    cx="480"
-    cy="480"
-    r="460"
-    stroke="black"
-    stroke-width="20"
-    fill="none"
-  />
+<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="960px" height="960px" fill="#DD0031" viewBox="0 0 960 960">
+  <!-- Outer Circle - Stroke color updated -->
+  <circle cx="480" cy="480" r="460" stroke="#DD0031" stroke-width="20" fill="none"/>
 
-  <!-- Original polygons -->
-  <polygon points="562.6,109.8 804.1,629.5 829.2,233.1"></polygon>
-  <polygon points="624.9,655.9 334.3,655.9 297.2,745.8 479.6,849.8 662,745.8"></polygon>
-  <polygon points="384.1,539.3 575.2,539.3 479.6,307"></polygon>
-  <polygon points="396.6,109.8 130,233.1 155.1,629.5"></polygon>
+  <!-- Original polygons - Fill color already updated -->
+  <polygon points="562.6,109.8 804.1,629.5 829.2,233.1" fill="#DD0031"/>
+  <polygon points="624.9,655.9 334.3,655.9 297.2,745.8 479.6,849.8 662,745.8" fill="#DD0031"/>
+  <polygon points="384.1,539.3 575.2,539.3 479.6,307" fill="#DD0031"/>
+  <polygon points="396.6,109.8 130,233.1 155.1,629.5" fill="#DD0031"/>
 </svg>

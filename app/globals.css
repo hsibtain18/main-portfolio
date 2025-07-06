@@ -13,7 +13,7 @@
 
   --color-border-value: #ffffff;
 }
-html, body {
+html, body,a {
   cursor: none;
 }
 .bg-header {

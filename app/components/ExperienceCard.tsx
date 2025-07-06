@@ -145,7 +145,7 @@
 //               e.stopPropagation(); // <--- This is the key change
 //               setOpen(false);
 //             }}
-//             className="absolute cursor-pointer top-4 right-4 z-50 text-gray-500 hover:text-red-500 text-2xl"
+//             className="absolute  top-4 right-4 z-50 text-gray-500 hover:text-red-500 text-2xl"
 //             aria-label="Close"
 //           >
 //             &times;
@@ -224,8 +224,8 @@
 //       </div>
 //     </>
 //   );
-// } 
- "use client";
+// }
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
@@ -284,15 +284,15 @@ export default function ExperienceCard({
         duration: 0.4,
         ease: "power2.inOut",
       });
-        if (open) {
-      // 🧹 Reset tilt transform
-      gsap.set(cardRef.current, {
-        rotateX: 0,
-        rotateY: 0,
-        scale: 1,
-        boxShadow: "none",
-      });
-    }
+      if (open) {
+        // 🧹 Reset tilt transform
+        gsap.set(cardRef.current, {
+          rotateX: 0,
+          rotateY: 0,
+          scale: 1,
+          boxShadow: "none",
+        });
+      }
     }
   }, [open]);
 
@@ -392,8 +392,9 @@ export default function ExperienceCard({
           cardRef.current = el;
           tiltRef.current = el;
         }}
-        onClick={() => setOpen(true)} 
-        className={`border cursor-pointer transform transition-transform hover:-translate-y-1 hover:shadow-2xl bg-white dark:bg-zinc-900 shadow-lg rounded-xl p-6 ${
+        onClick={() => setOpen(true)}
+        data-hoverable // This is key for your CustomCursor
+        className={`border  transform transition-transform hover:-translate-y-1 hover:shadow-2xl bg-white dark:bg-zinc-900 shadow-lg rounded-xl p-6 ${
           open ? "z-50 fixed inset-0 overflow-auto m-4 md:m-12" : "max-w-md"
         }`}
       >
@@ -403,7 +404,7 @@ export default function ExperienceCard({
               e.stopPropagation();
               setOpen(false);
             }}
-            className="absolute cursor-pointer top-4 right-4 z-50 text-gray-500 hover:text-red-500 text-2xl"
+            className="absolute  top-4 right-4 z-50 text-gray-500 hover:text-red-500 text-2xl"
             aria-label="Close"
           >
             &times;

@@ -299,7 +299,7 @@ export default function TechStack() {
                 <div
                   key={tool.name}
                   className="flex items-center space-x-3 p-3 px-4 rounded-full bg-gray-100 dark:bg-gray-800 shadow-sm
-                             transition-all duration-300 hover:scale-105 hover:shadow-md cursor-pointer
+                             transition-all duration-300 hover:scale-105 hover:shadow-md  
                              text-gray-700 dark:text-gray-300"
                 >
                   <img
