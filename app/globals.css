@@ -13,7 +13,9 @@
 
   --color-border-value: #ffffff;
 }
-
+html, body {
+  cursor: none;
+}
 .bg-header {
   background-color: var(--background-color);
   color: var(--color-border-value);

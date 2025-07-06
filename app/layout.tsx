@@ -3,6 +3,8 @@ import { Chela_One, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import Navbar from "./components/Navbat";
+import CustomCursor from "./components/CustomCursor";
+import { Providers } from "./ThemeProvider/ThemeProvider ";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,10 +42,11 @@ export default function RootLayout({
         ></script>
       </head>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <CustomCursor />
+        <Providers>
           <Navbar />
           {children}
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

@@ -392,7 +392,7 @@ export default function ExperienceCard({
           cardRef.current = el;
           tiltRef.current = el;
         }}
-        onClick={() => setOpen(true)}
+        onClick={() => setOpen(true)} 
         className={`border cursor-pointer transform transition-transform hover:-translate-y-1 hover:shadow-2xl bg-white dark:bg-zinc-900 shadow-lg rounded-xl p-6 ${
           open ? "z-50 fixed inset-0 overflow-auto m-4 md:m-12" : "max-w-md"
         }`}
