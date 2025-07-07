@@ -1,6 +1,8 @@
 export interface ExperienceItem {
   title: string;
   company: string;
+  companyDetails?:string
+  companyURL?:string
   location: string;
   startDate: string;
   endDate: string;
@@ -12,7 +14,9 @@ export const experienceData: ExperienceItem[] = [
   {
     title: "Senior Software Developer",
     company: "Contour Software (CSI)",
+    companyDetails:`Contour Software, founded in Karachi in 2010, rapidly grew to 2,000 employees across Pakistan, serving global clients. This expansion followed Constellation Software's acquisition of Gladstone PLC UK, becoming a key part of Constellation, Canada's largest software company and a top global acquirer. Constellation's systems are widely used globally.`,
     location: "Remote",
+    companyURL:'https://contour-software.com/',
     startDate: "01/2025",
     endDate: "06/2025",
     responsibilities: [
@@ -35,6 +39,8 @@ export const experienceData: ExperienceItem[] = [
   {
     title: "Software Engineer (Front-End- Angular)",
     company: "Contour Software (CSI)",
+    companyDetails:`Contour Software, founded in Karachi in 2010, rapidly grew to 2,000 employees across Pakistan, serving global clients. This expansion followed Constellation Software's acquisition of Gladstone PLC UK, becoming a key part of Constellation, Canada's largest software company and a top global acquirer. Constellation's systems are widely used globally.`,
+    companyURL:'https://contour-software.com/',
     location: "Remote",
     startDate: "01/2021",
     endDate: "12/2024",
@@ -62,6 +68,8 @@ export const experienceData: ExperienceItem[] = [
   {
     title: "Software Engineer (Front-End & Back-End)",
     company: "Haball Pvt Ltd",
+    companyDetails:`Haball.pk offers businesses an open, multi-channel, and digital payment solution. It automates invoicing, reconciliation, and payments across the supply chain, allowing stakeholders to manage payments and financing against invoices, replacing manual processes with an omni-channel platform.`,
+    companyURL:'https://haball.pk/',
     location: "Karachi, Pakistan",
     startDate: "01/2018",
     endDate: "01/2021",
@@ -79,7 +87,7 @@ export const experienceData: ExperienceItem[] = [
       { name: "React", path: "/icons/react.svg" },
       { name: "Node", path: "/icons/Node.js.svg" },
       { name: "MySQL", path: "/icons/mysql.svg" },
-      { name: "Express", path: "/icons/express.svg" },
+      { name: "Express", path: "https://cdn.simpleicons.org/express/cccccc" },
       { name: "Jira", path: "/icons/jira.svg" },
       { name: "Confluence", path: "/icons/confluence.svg" },
       { name: "JavaScript", path: "/icons/JavaScript.svg" },
@@ -89,6 +97,8 @@ export const experienceData: ExperienceItem[] = [
   {
     title: "Intern – Android Developer",
     company: "Sibisoft Pvt Ltd",
+    companyDetails:`Sibisoft is a software house based in Karachi, Pakistan, employing over 200 developers and designers. They are responsible for developing and powering Northstar's Club Management Software, which is used by hundreds of clubs globally. Sibisoft also provides project and account management services to ensure efficient and accurate setups.`,
+    companyURL:'https://www.sibisoft.com/',
     location: "Karachi, Pakistan",
     startDate: "05/2016",
     endDate: "08/2016",

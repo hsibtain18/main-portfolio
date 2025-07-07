@@ -184,16 +184,16 @@ const techCategories: Record<string, { name: string; icon: string }[]> = {
     { name: "Figma", icon: "https://cdn.simpleicons.org/figma/F24E1E" },
     {
       name: "Responsive Design",
-      icon: "https://cdn.simpleicons.org/css3/1572B6",
+      icon: "/icons/ResponsiveDesign.svg",
     },
   ],
   "Backend & Fullstack": [
     { name: "Node.js", icon: "https://cdn.simpleicons.org/nodedotjs/339933" },
-    { name: "Express", icon: "https://cdn.simpleicons.org/express/000000" },
+    { name: "Express", icon: "https://cdn.simpleicons.org/express/cccccc" },
     { name: "Next.js", icon: "https://cdn.simpleicons.org/nextdotjs/000000" },
     {
       name: "RESTful APIs",
-      icon: "https://cdn.simpleicons.org/openapi/6BA539",
+      icon: "https://img.icons8.com/nolan/64/api-settings.png",
     },
     { name: "MySQL", icon: "https://cdn.simpleicons.org/mysql/4479A1" },
   ],
@@ -222,7 +222,7 @@ const techCategories: Record<string, { name: string; icon: string }[]> = {
   "Tools & Platforms": [
     {
       name: "VS Code",
-      icon: "https://cdn.simpleicons.org/visualstudiocode/007ACC",
+      icon: "/icons/vscode.svg",
     },
     { name: "Postman", icon: "https://cdn.simpleicons.org/postman/FF6C37" },
     {
@@ -305,7 +305,7 @@ export default function TechStack() {
                   <img
                     src={tool.icon}
                     alt={tool.name}
-                    className="w-5 h-5 object-contain"
+                    className="w-10 h-10 object-contain"
                   />
                   <span className="text-sm font-medium">{tool.name}</span>
                 </div>
