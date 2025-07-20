@@ -55,7 +55,7 @@ export default function LandingSection() {
         
           <p className="md:text-[1.2rem]  text-gray-600 dark:text-gray-300">
             <span className="chela-font text-[1.75rem]">
-              Front-End Developer
+              Full-Stack Developer
             </span>{" "}
             with <strong>6.5+ years of experience</strong> building scalable,
             high-performance web applications using{" "}
