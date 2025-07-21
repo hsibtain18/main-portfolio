@@ -488,8 +488,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ExperienceItem } from "../constant/experienceData"; // Assuming this exists
+import { ScrollTrigger } from "gsap/ScrollTrigger"; 
+import { ExperienceItem } from "@/app/constant/experienceData";
 
 gsap.registerPlugin(ScrollTrigger);
 

@@ -10,7 +10,7 @@ import TechStack from "./components/TechStacks";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
-
+debugger
   useEffect(() => setMounted(true), []);
   if (!mounted) return null; // Prevent hydration mismatch
 

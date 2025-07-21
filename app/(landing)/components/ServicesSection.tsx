@@ -1,4 +1,5 @@
-import { experienceData } from "../constant/experienceData";
+ 
+import { experienceData } from "@/app/constant/experienceData";
 import ExperienceCard from "./ExperienceCard";
  
  

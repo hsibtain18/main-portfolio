@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Chela_One, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
-import Navbar from "./components/Navbat";
-import CustomCursor from "./components/CustomCursor";
-import { Providers } from "./ThemeProvider/ThemeProvider ";
+import CustomCursor from "./(sharedComponents)/CustomCursor";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,10 +41,7 @@ export default function RootLayout({
       </head>
       <body>
         <CustomCursor />
-        <Providers>
-          <Navbar />
-          {children}
-        </Providers>
+        {children}
       </body>
     </html>
   );
