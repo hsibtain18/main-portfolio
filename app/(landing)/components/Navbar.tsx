@@ -12,6 +12,7 @@ const navLinks = [
   { label: "Work", href: "#resume" },
   { label: "Projects", href: "#pastProject" },
   { label: "Contact", href: "#contact" },
+  { label: "Dashboard", href: "/dashboard" },
   {
     label: "Resume",
     href: "/Syed_Hassan_Sibtain.pdf",
@@ -24,10 +25,8 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-debugger
   useEffect(() => {
     setMounted(true);
-debugger
     // Auto-close mobile nav on scroll
     const handleScroll = () => {
       if (isOpen) setIsOpen(false);
@@ -35,7 +34,6 @@ debugger
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isOpen]);
-debugger
   if (!mounted) return null;
 
   return (
