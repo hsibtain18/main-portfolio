@@ -1,82 +1,88 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { signIn } from 'next-auth/react'; // Make sure signIn is imported
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-
-// Helper function to set/get theme from localStorage
+import React, { useState, useEffect } from "react";
+import { signIn } from "next-auth/react";  
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+ 
 const getInitialTheme = () => {
-  if (typeof window !== 'undefined' && localStorage.getItem('theme')) {
-    return localStorage.getItem('theme') as 'light' | 'dark';
+  if (typeof window !== "undefined" && localStorage.getItem("theme")) {
+    return localStorage.getItem("theme") as "light" | "dark";
   }
-  if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    return 'dark';
+  if (
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  ) {
+    return "dark";
   }
-  return 'light';
+  return "light";
 };
 
 export default function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>(getInitialTheme);
+  const [theme, setTheme] = useState<"light" | "dark">(getInitialTheme);
+  const [mounted, setMounted] = useState(false);
 
   const router = useRouter();
 
   useEffect(() => {
+    setMounted(true);
     const root = window.document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
+    if (theme === "dark") {
+      root.classList.add("dark");
     } else {
-      root.classList.remove('dark');
+      root.classList.remove("dark");
     }
-    localStorage.setItem('theme', theme);
+    localStorage.setItem("theme", theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
   };
 
   const handleCredentialsLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
-    const result = await signIn('cognito-credentials', {
+    const result = await signIn("credentials", {
       email,
       password,
       redirect: false,
+      callbackUrl:'/dashboard'
     });
-
     setLoading(false);
 
     if (result?.error) {
       setError(result.error);
     } else if (result?.ok) {
-      router.push('/dashboard');
+      router.push("/dashboard");
     }
   };
 
   const handleSocialLogin = async (provider: string) => {
     setLoading(true);
     // When using signIn with a provider, NextAuth.js handles the redirect
-    await signIn(provider, { callbackUrl: '/dashboard' });
+    await signIn(provider, { callbackUrl: "/dashboard" });
     setLoading(false); // This might not be reached if redirect happens quickly
   };
+   if (!mounted) {
+    return null;
+  }
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] md:min-h-[calc(100vh-8rem)] bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 sm:p-6 lg:p-8">
       <div className="relative bg-white dark:bg-gray-800 p-6 sm:p-8 lg:p-10 rounded-xl shadow-2xl w-full max-w-md border border-gray-100 dark:border-gray-700 transform hover:scale-[1.01] transition-transform duration-300 ease-in-out">
-
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
           className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 shadow-md hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-label="Toggle theme"
         >
-          {theme === 'dark' ? (
+          {theme === "dark" ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -128,7 +134,10 @@ export default function LoginForm() {
         {/* Email/Password Form */}
         <form onSubmit={handleCredentialsLogin} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1"
+            >
               Email Address
             </label>
             <input
@@ -144,7 +153,10 @@ export default function LoginForm() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
+            <label
+              htmlFor="password"
+              className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1"
+            >
               Password
             </label>
             <input
@@ -160,7 +172,10 @@ export default function LoginForm() {
           </div>
 
           <div className="text-right">
-            <Link href="/(auth)/forgot-password" className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
+            <Link
+              href="/forgot-password"
+              className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+            >
               Forgot password?
             </Link>
           </div>
@@ -171,19 +186,36 @@ export default function LoginForm() {
             disabled={loading}
           >
             {loading ? (
-              <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                className="animate-spin h-5 w-5 mr-3 text-white"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
             ) : (
-              'Log In'
+              "Log In"
             )}
           </button>
         </form>
 
         {/* Separator */}
         <div className="relative my-8">
-          <div className="absolute inset-0 flex items-center" aria-hidden="true">
+          <div
+            className="absolute inset-0 flex items-center"
+            aria-hidden="true"
+          >
             <div className="w-full border-t border-gray-300 dark:border-gray-600" />
           </div>
           <div className="relative flex justify-center text-sm">
@@ -196,28 +228,39 @@ export default function LoginForm() {
         {/* Social Login Buttons */}
         <div className="space-y-4">
           <button
-            onClick={() => handleSocialLogin('github')}
+            onClick={() => handleSocialLogin("github")}
             className="w-full flex items-center justify-center py-3 px-6 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-base font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading}
           >
-            <img src="https://www.svgrepo.com/show/475651/github-color.svg" alt="GitHub icon" className="h-6 w-6 mr-3" />
+            <img
+              src="https://www.svgrepo.com/show/475651/github-color.svg"
+              alt="GitHub icon"
+              className="h-6 w-6 mr-3"
+            />
             Sign in with GitHub
           </button>
 
           <button
-            onClick={() => handleSocialLogin('google')}
+            onClick={() => handleSocialLogin("google")}
             className="w-full flex items-center justify-center py-3 px-6 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-base font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading}
           >
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google icon" className="h-6 w-6 mr-3" />
+            <img
+              src="https://www.svgrepo.com/show/475656/google-color.svg"
+              alt="Google icon"
+              className="h-6 w-6 mr-3"
+            />
             Sign in with Google
           </button>
         </div>
 
         <div className="mt-8 text-center">
           <p className="text-gray-600 dark:text-gray-300">
-            Don't have an account?{' '}
-            <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
+            Don't have an account?{" "}
+            <Link
+              href="/signup"
+              className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+            >
               Sign Up Here
             </Link>
           </p>
