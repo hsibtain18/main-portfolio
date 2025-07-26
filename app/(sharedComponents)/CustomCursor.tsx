@@ -1,55 +1,3 @@
-// "use client";
-
-// import { useEffect, useRef } from "react";
-
-// export default function CustomCursor() {
-//   const dotRef = useRef<HTMLDivElement>(null);
-//   const ringRef = useRef<HTMLDivElement>(null);
-
-//   useEffect(() => {
-//     const dot = dotRef.current!;
-//     const ring = ringRef.current!;
-//     let mouseX = 0;
-//     let mouseY = 0;
-//     let ringX = 0;
-//     let ringY = 0;
-
-//     const animate = () => {
-//       ringX += (mouseX - ringX) * 0.2;
-//       ringY += (mouseY - ringY) * 0.2;
-
-//       dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
-//       ring.style.transform = `translate3d(${ringX - 15}px, ${ringY - 15}px, 0)`;
-
-//       requestAnimationFrame(animate);
-//     };
-
-//     const handleMouseMove = (e: MouseEvent) => {
-//       mouseX = e.clientX;
-//       mouseY = e.clientY;
-//     };
-
-//     document.addEventListener("mousemove", handleMouseMove);
-//     requestAnimationFrame(animate);
-
-//     return () => {
-//       document.removeEventListener("mousemove", handleMouseMove);
-//     };
-//   }, []);
-
-//   return (
-//     <>
-//       <div
-//         ref={dotRef}
-//         className="fixed top-0 left-0 z-[9999] w-1.5 h-1.5 bg-blue-500 rounded-full pointer-events-none"
-//       />
-//       <div
-//         ref={ringRef}
-//         className="fixed top-0 left-0 z-[9998] w-8 h-8 border-2 border-blue-500 rounded-full pointer-events-none"
-//       />
-//     </>
-//   );
-// }
 
 "use client";
 
@@ -84,13 +32,13 @@ export default function CustomCursor() {
       const isHoverable = target.closest("a, button, [data-hoverable]");
 
       if (cursorRef.current) {
-        setIsPointerCursor(!!isHoverable); // Set true if hovering over a hoverable element, false otherwise
+        setIsPointerCursor(!!isHoverable);  
       }
     };
 
     document.addEventListener("mousemove", moveCursor);
     document.addEventListener("mouseover", handleHover);
-    document.addEventListener("mouseout", handleHover); // Use mouseout to revert when leaving hoverable area
+    document.addEventListener("mouseout", handleHover);  
 
     return () => {
       document.removeEventListener("mousemove", moveCursor);
@@ -103,9 +51,7 @@ export default function CustomCursor() {
     return null;
   }
 
-  // --- SVG Components ---
-
-  // Default Arrow Cursor SVG Component
+ 
   const DefaultCursorSVG = ({ fillColor, strokeColor }: { fillColor: string; strokeColor: string }) => (
     <svg width="23" height="25" viewBox="0 0 23 25" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g filter="url(#filter0_d_0_33)">

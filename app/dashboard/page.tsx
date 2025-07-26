@@ -1,10 +1,13 @@
-import { redirect } from 'next/navigation'
-import React from 'react'
+import { redirect } from "next/navigation";
+import React from "react";
+import CryptoTable from "./components/CryptoTable";
 
 const Dashboard = () => {
   return (
-    <div>Dashboard</div>
-  )
-}
+    <>
+      <CryptoTable />
+    </>
+  );
+};
 
-export default Dashboard
+export default Dashboard;
