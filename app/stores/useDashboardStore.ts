@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { Coin } from "../constant/experienceData";
 
 type Currency = {
   code: string;
@@ -12,6 +13,8 @@ type PreferenceState = {
   theme: "light" | "dark";
   coin: string;
   days: number;
+  CoinList: Coin[];
+  setCoinList:(CoinList : Coin[])=> void;
   setDays: (days: number) => void;
   setCoin: (coin: string) => void;
   setCurrency: (currency: Currency) => void;
@@ -28,6 +31,8 @@ export const usePreferenceStore = create<PreferenceState>()((set) => ({
   theme: "light",
   coin: "bitcoin",
   days:180,
+  CoinList:[],
+  setCoinList:(CoinList)=> set({CoinList}),
   setDays: (days) => set({ days }),
   setCoin: (coin) => set({ coin }),
   setCurrency: (currency) => set({ currency }),

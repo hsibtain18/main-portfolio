@@ -15,28 +15,21 @@ import CryptoChart from "@/app/components/CryptoChart";
 import React from "react";
 import { usePreferenceStore } from "@/app/stores/useDashboardStore";
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from "@/components/ui/pagination";
+import { Coin } from "@/app/constant/experienceData";
+import { Input } from "@/components/ui/input";
 
-type Coin = {
-  id: string;
-  name: string;
-  symbol: string;
-  image: string;
-  market_cap: number;
-  current_price: number;
-  price_change_percentage_24h: number;
-};
+ 
 
 const ITEMS_PER_PAGE = 10;
 
 export default function CryptoTable() {
-  const [data, setData] = useState<Coin[]>([]);
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [loadingChart, setLoadingChart] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
-  const {setCoin , currency} = usePreferenceStore()
-  const currentData = data.slice(
+  const {setCoin , currency,CoinList,setCoinList} = usePreferenceStore()
+  const totalPages = Math.ceil(CoinList.length / ITEMS_PER_PAGE);
+  const currentData = CoinList.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
@@ -45,7 +38,7 @@ export default function CryptoTable() {
     const fetchData = async () => {
       const res = await fetch(`/api/crypto?currency=${currency.code.toLowerCase()}`);
       const json = await res.json();
-      setData(json);
+      setCoinList(json);
     };
     fetchData();
     setMounted(true);
@@ -69,6 +62,18 @@ export default function CryptoTable() {
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-6">
+       <div className="mb-4">
+        <Input
+          type="text"
+          placeholder="Filter coins by name or symbol..."
+          // value={searchTerm} // The input value reflects the immediate user typing
+          // onChange={(e) => {
+          //   setSearchTerm(e.target.value);
+          //   setCurrentPage(1); // Reset to the first page immediately when input changes
+          // }}
+          className="max-w-sm"
+        />
+      </div>
       <Table>
         <TableHeader>
           <TableRow>
@@ -77,7 +82,7 @@ export default function CryptoTable() {
             <TableHead>Symbol</TableHead>
             <TableHead>Market Cap</TableHead>
             <TableHead>24h % Change</TableHead>
-            <TableHead>Price (USD)</TableHead>
+            <TableHead>Price ( {currency.code} )</TableHead>
             <TableHead className="text-right">Expand</TableHead>
           </TableRow>
         </TableHeader>
