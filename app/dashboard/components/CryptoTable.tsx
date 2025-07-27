@@ -13,6 +13,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import CryptoChart from "@/app/components/CryptoChart";
 import React from "react";
+import { usePreferenceStore } from "@/app/stores/useDashboardStore";
 
 type Coin = {
   id: string;
@@ -33,7 +34,7 @@ export default function CryptoTable() {
   const [mounted, setMounted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
-
+  const {setCoin} = usePreferenceStore()
   const currentData = data.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -54,6 +55,7 @@ export default function CryptoTable() {
       setExpandedRow(null);
       return;
     }
+    setCoin(coinId)
     setExpandedRow(coinId);
     setLoadingChart(true);
 
@@ -82,7 +84,7 @@ export default function CryptoTable() {
           {currentData.map((coin) => (
             <React.Fragment key={coin.id}>
               <TableRow
-                className="cursor-pointer"
+                className=" "
                 onClick={() => handleExpand(coin.id)}
               >
                 <TableCell>
@@ -114,7 +116,7 @@ export default function CryptoTable() {
                       handleExpand(coin.id);
                     }}
                   >
-                    {expandedRow === coin.id ? <ChevronUp /> : <ChevronDown />}
+                    {expandedRow === coin.id ? <ChevronUp className="cursor-none:"/> : <ChevronDown className="cursor-none:"/>}
                   </Button>
                 </TableCell>
               </TableRow>
@@ -128,7 +130,7 @@ export default function CryptoTable() {
                       <div className="w-full h-72 my-5">
                         <CryptoChart
                           key={`${coin.id}-chart`}
-                          coinId={coin.id}
+                        
                         />
                       </div>
                     )}
