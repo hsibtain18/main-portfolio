@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import CryptoChart from "@/app/components/CryptoChart";
 import React from "react";
 import { usePreferenceStore } from "@/app/stores/useDashboardStore";
+import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from "@/components/ui/pagination";
 
 type Coin = {
   id: string;
@@ -34,7 +35,7 @@ export default function CryptoTable() {
   const [mounted, setMounted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
-  const {setCoin} = usePreferenceStore()
+  const {setCoin , currency} = usePreferenceStore()
   const currentData = data.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -42,13 +43,13 @@ export default function CryptoTable() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch("/api/crypto");
+      const res = await fetch(`/api/crypto?currency=${currency.code.toLowerCase()}`);
       const json = await res.json();
       setData(json);
     };
     fetchData();
     setMounted(true);
-  }, []);
+  }, [currency]);
 
   const handleExpand = async (coinId: string) => {
     if (expandedRow === coinId) {
@@ -96,7 +97,7 @@ export default function CryptoTable() {
                 </TableCell>
                 <TableCell>{coin.name}</TableCell>
                 <TableCell className="uppercase">{coin.symbol}</TableCell>
-                <TableCell>${coin.market_cap.toLocaleString()}</TableCell>
+                <TableCell>{currency.symbol} {coin.market_cap.toLocaleString()}</TableCell>
                 <TableCell
                   className={`font-medium ${
                     coin.price_change_percentage_24h >= 0
@@ -106,7 +107,7 @@ export default function CryptoTable() {
                 >
                   {coin.price_change_percentage_24h.toFixed(2)}%
                 </TableCell>
-                <TableCell>${coin.current_price.toLocaleString()}</TableCell>
+                <TableCell> {currency.symbol} {coin.current_price.toLocaleString()}</TableCell>
                 <TableCell className="text-right">
                   <Button
                     size="sm"
@@ -142,26 +143,48 @@ export default function CryptoTable() {
         </TableBody>
       </Table>
 
-      <div className="mt-4 flex justify-between items-center">
-        <p className="text-sm text-muted-foreground">
-          Page {currentPage} of {totalPages}
-        </p>
-        <div className="space-x-2">
-          <Button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            variant="outline"
-          >
-            Prev
-          </Button>
-          <Button
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-            variant="outline"
-          >
-            Next
-          </Button>
-        </div>
+        <div className="mt-4 flex justify-center items-center">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#" // Use # or handle navigation via onClick
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage((p) => Math.max(1, p - 1));
+                }}
+                isActive={currentPage === 1} // Disable if on first page
+              />
+            </PaginationItem>
+
+            {/* Render individual page numbers (optional, but common) */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCurrentPage(page);
+                  }}
+                  isActive={currentPage === page}
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            <PaginationItem>
+              <PaginationNext
+                href="#" // Use # or handle navigation via onClick
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage((p) => Math.min(totalPages, p + 1));
+                }}
+                isActive={currentPage === totalPages} // Disable if on last page
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
     </div>
   );
