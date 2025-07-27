@@ -17,7 +17,23 @@ import { usePreferenceStore } from "@/app/stores/useDashboardStore";
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from "@/components/ui/pagination";
 import { Coin } from "@/app/constant/experienceData";
 import { Input } from "@/components/ui/input";
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
+  useEffect(() => {
+    // Set a timeout to update the debounced value after the specified delay
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    // Clean up the timeout if the value changes (user types again) or component unmounts
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]); // Only re-run if value or delay changes
+
+  return debouncedValue;
+}
  
 
 const ITEMS_PER_PAGE = 10;
@@ -28,8 +44,19 @@ export default function CryptoTable() {
   const [mounted, setMounted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const {setCoin , currency,CoinList,setCoinList} = usePreferenceStore()
-  const totalPages = Math.ceil(CoinList.length / ITEMS_PER_PAGE);
-  const currentData = CoinList.slice(
+  const [searchTerm, setSearchTerm] = useState('');
+  // Debounced search term, which will be used for filtering
+  const debouncedSearchTerm = useDebounce(searchTerm, 500); // Debounce delay of 500ms
+
+  // --- Client-Side Filtering Logic now uses debouncedSearchTerm ---
+  const filteredData = CoinList.filter(coin =>
+    coin.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+    coin.symbol.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+
+  const currentData = filteredData.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
@@ -66,22 +93,25 @@ export default function CryptoTable() {
         <Input
           type="text"
           placeholder="Filter coins by name or symbol..."
-          // value={searchTerm} // The input value reflects the immediate user typing
-          // onChange={(e) => {
-          //   setSearchTerm(e.target.value);
-          //   setCurrentPage(1); // Reset to the first page immediately when input changes
-          // }}
+          value={searchTerm} // The input value reflects the immediate user typing
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1); // Reset to the first page immediately when input changes
+          }}
           className="max-w-sm"
         />
       </div>
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>Rank</TableHead>
             <TableHead>Icon</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Symbol</TableHead>
             <TableHead>Market Cap</TableHead>
+            <TableHead>1h % Change</TableHead>
             <TableHead>24h % Change</TableHead>
+            <TableHead>7d % Change</TableHead>
             <TableHead>Price ( {currency.code} )</TableHead>
             <TableHead className="text-right">Expand</TableHead>
           </TableRow>
@@ -93,6 +123,7 @@ export default function CryptoTable() {
                 className=" "
                 onClick={() => handleExpand(coin.id)}
               >
+                <TableCell>{coin.market_cap_rank}</TableCell>
                 <TableCell>
                   <img
                     src={coin.image}
@@ -105,12 +136,30 @@ export default function CryptoTable() {
                 <TableCell>{currency.symbol} {coin.market_cap.toLocaleString()}</TableCell>
                 <TableCell
                   className={`font-medium ${
-                    coin.price_change_percentage_24h >= 0
+                    coin.price_change_percentage_1h_in_currency >= 0
                       ? "text-green-600"
                       : "text-red-500"
                   }`}
                 >
-                  {coin.price_change_percentage_24h.toFixed(2)}%
+                  {coin.price_change_percentage_1h_in_currency.toFixed(2)}%
+                </TableCell>
+                 <TableCell
+                  className={`font-medium ${
+                    coin.price_change_percentage_24h_in_currency >= 0
+                      ? "text-green-600"
+                      : "text-red-500"
+                  }`}
+                >
+                  {coin.price_change_percentage_24h_in_currency.toFixed(2)}%
+                </TableCell>
+                 <TableCell
+                  className={`font-medium ${
+                    coin.price_change_percentage_7d_in_currency >= 0
+                      ? "text-green-600"
+                      : "text-red-500"
+                  }`}
+                >
+                  {coin.price_change_percentage_7d_in_currency.toFixed(2)}%
                 </TableCell>
                 <TableCell> {currency.symbol} {coin.current_price.toLocaleString()}</TableCell>
                 <TableCell className="text-right">
@@ -153,16 +202,14 @@ export default function CryptoTable() {
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
-                href="#" // Use # or handle navigation via onClick
+                href="#"  
                 onClick={(e) => {
                   e.preventDefault();
                   setCurrentPage((p) => Math.max(1, p - 1));
                 }}
-                isActive={currentPage === 1} // Disable if on first page
+                isActive={currentPage === 1}  
               />
             </PaginationItem>
-
-            {/* Render individual page numbers (optional, but common) */}
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <PaginationItem key={page}>
                 <PaginationLink

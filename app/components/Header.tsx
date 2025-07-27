@@ -96,7 +96,6 @@ export default function Header() {
           Sign Up
         </Link>
 
-        {mounted && (
           <button
             ref={iconRef}
             onClick={toggleTheme}
@@ -105,7 +104,6 @@ export default function Header() {
           >
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>
-        )}
       </div>
     </header>
   );
