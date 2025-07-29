@@ -30,7 +30,9 @@ export default function Header() {
     }
     setTheme(theme === "dark" ? "light" : "dark");
   };
-
+if(!mounted){
+  return null
+}
   return (
     <header className="flex justify-between items-center px-6 py-4 bg-white dark:bg-gray-900 border-b dark:border-gray-800 shadow-sm">
       <h1 className="text-lg font-semibold text-gray-800 dark:text-white">

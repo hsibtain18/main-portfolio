@@ -43,11 +43,11 @@ export default function CryptoTable() {
   const [loadingChart, setLoadingChart] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const {setCoin , currency,CoinList,setCoinList} = usePreferenceStore()
   const [searchTerm, setSearchTerm] = useState('');
   // Debounced search term, which will be used for filtering
   const debouncedSearchTerm = useDebounce(searchTerm, 500); // Debounce delay of 500ms
 
+  const { fetchCoinList,currency,setCoin ,CoinList ,fetchTrendingCoins} = usePreferenceStore();
   // --- Client-Side Filtering Logic now uses debouncedSearchTerm ---
   const filteredData = CoinList.filter(coin =>
     coin.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
@@ -61,15 +61,12 @@ export default function CryptoTable() {
     currentPage * ITEMS_PER_PAGE
   );
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await fetch(`/api/crypto?currency=${currency.code.toLowerCase()}`);
-      const json = await res.json();
-      setCoinList(json);
-    };
-    fetchData();
-    setMounted(true);
-  }, [currency]);
+
+useEffect(() => {
+  fetchCoinList(currency.code);
+  fetchTrendingCoins()
+  setMounted(true);
+}, [currency.code]);
 
   const handleExpand = async (coinId: string) => {
     if (expandedRow === coinId) {
