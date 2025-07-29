@@ -9,117 +9,174 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  Bookmark,
+  BookmarkCheck,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import CryptoChart from "@/app/components/CryptoChart";
 import React from "react";
 import { usePreferenceStore } from "@/app/stores/useDashboardStore";
-import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from "@/components/ui/pagination";
-import { Coin } from "@/app/constant/experienceData";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationLink,
+  PaginationNext,
+} from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Coin } from "@/app/constant/experienceData";
+
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
   useEffect(() => {
-    // Set a timeout to update the debounced value after the specified delay
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    // Clean up the timeout if the value changes (user types again) or component unmounts
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]); // Only re-run if value or delay changes
-
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
   return debouncedValue;
 }
- 
 
 const ITEMS_PER_PAGE = 10;
+const REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 export default function CryptoTable() {
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [loadingChart, setLoadingChart] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  // Debounced search term, which will be used for filtering
-  const debouncedSearchTerm = useDebounce(searchTerm, 500); // Debounce delay of 500ms
+  const [searchTerm, setSearchTerm] = useState("");
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  const { fetchCoinList,currency,setCoin ,CoinList ,fetchTrendingCoins} = usePreferenceStore();
-  // --- Client-Side Filtering Logic now uses debouncedSearchTerm ---
-  const filteredData = CoinList.filter(coin =>
-    coin.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-    coin.symbol.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+  const {
+    fetchCoinList,
+    fetchTrendingCoins,
+    currency,
+    CoinList,
+    Favorites,
+    setCoin,
+    setFavorites,
+  } = usePreferenceStore();
+
+  const filteredData = CoinList?.filter(
+    (coin) =>
+      coin.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+      coin.symbol.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
-
   const currentData = filteredData.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
 
+  const isFavorite = (coin: Coin) =>
+    Favorites.some((fav) => fav.id === coin.id);
 
-useEffect(() => {
-  fetchCoinList(currency.code);
-  fetchTrendingCoins()
-  setMounted(true);
-}, [currency.code]);
+  const toggleFavorite = (coin: Coin) => {
+    if (isFavorite(coin)) {
+      setFavorites(Favorites.filter((fav) => fav.id !== coin.id));
+    } else {
+      setFavorites([...Favorites, coin]);
+    }
+  };
+
+  const reloadData = async () => {
+    await fetchCoinList(currency.code);
+    await fetchTrendingCoins();
+    setLastUpdated(new Date());
+  };
+
+  useEffect(() => {
+    reloadData();
+    const interval = setInterval(() => {
+      reloadData();
+    }, REFRESH_INTERVAL_MS);
+    setMounted(true);
+    return () => clearInterval(interval);
+  }, [currency.code]);
 
   const handleExpand = async (coinId: string) => {
     if (expandedRow === coinId) {
       setExpandedRow(null);
       return;
     }
-    setCoin(coinId)
+    setCoin(coinId);
     setExpandedRow(coinId);
     setLoadingChart(true);
-
     setLoadingChart(false);
   };
 
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return null;
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-6">
-       <div className="mb-4">
+      <div className="mb-4 flex justify-between items-center">
         <Input
           type="text"
           placeholder="Filter coins by name or symbol..."
-          value={searchTerm} // The input value reflects the immediate user typing
+          value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
-            setCurrentPage(1); // Reset to the first page immediately when input changes
+            setCurrentPage(1);
           }}
           className="max-w-sm"
         />
+        {lastUpdated && (
+          <Badge variant="outline" className="text-sm text-muted-foreground">
+            <Clock className="h-3 w-3 mr-1" />
+            Updated: {lastUpdated.toLocaleTimeString()}
+          </Badge>
+        )}
       </div>
+
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>Favorite </TableHead>
             <TableHead>Rank</TableHead>
             <TableHead>Icon</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Symbol</TableHead>
             <TableHead>Market Cap</TableHead>
-            <TableHead>1h % Change</TableHead>
-            <TableHead>24h % Change</TableHead>
-            <TableHead>7d % Change</TableHead>
-            <TableHead>Price ( {currency.code} )</TableHead>
+            <TableHead>1h %</TableHead>
+            <TableHead>24h %</TableHead>
+            <TableHead>7d %</TableHead>
+            <TableHead>Price ({currency.code})</TableHead>
             <TableHead className="text-right">Expand</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {currentData.map((coin) => (
             <React.Fragment key={coin.id}>
-              <TableRow
-                className=" "
-                onClick={() => handleExpand(coin.id)}
-              >
+              <TableRow onClick={() => handleExpand(coin.id)}>
+                <TableCell>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(coin);
+                    }}
+                  >
+                    {isFavorite(coin) ? (
+                      <Bookmark
+                        className="text-red-500 fill-red-500"
+                        size={16}
+                      />
+                    ) : (
+                      <BookmarkCheck
+                        className="text-muted-foreground"
+                        size={16}
+                      />
+                    )}
+                  </Button>
+                </TableCell>
                 <TableCell>{coin.market_cap_rank}</TableCell>
                 <TableCell>
                   <img
@@ -130,7 +187,9 @@ useEffect(() => {
                 </TableCell>
                 <TableCell>{coin.name}</TableCell>
                 <TableCell className="uppercase">{coin.symbol}</TableCell>
-                <TableCell>{currency.symbol} {coin.market_cap.toLocaleString()}</TableCell>
+                <TableCell>
+                  {currency.symbol} {coin.market_cap.toLocaleString()}
+                </TableCell>
                 <TableCell
                   className={`font-medium ${
                     coin.price_change_percentage_1h_in_currency >= 0
@@ -140,7 +199,7 @@ useEffect(() => {
                 >
                   {coin.price_change_percentage_1h_in_currency.toFixed(2)}%
                 </TableCell>
-                 <TableCell
+                <TableCell
                   className={`font-medium ${
                     coin.price_change_percentage_24h_in_currency >= 0
                       ? "text-green-600"
@@ -149,7 +208,7 @@ useEffect(() => {
                 >
                   {coin.price_change_percentage_24h_in_currency.toFixed(2)}%
                 </TableCell>
-                 <TableCell
+                <TableCell
                   className={`font-medium ${
                     coin.price_change_percentage_7d_in_currency >= 0
                       ? "text-green-600"
@@ -158,32 +217,30 @@ useEffect(() => {
                 >
                   {coin.price_change_percentage_7d_in_currency.toFixed(2)}%
                 </TableCell>
-                <TableCell> {currency.symbol} {coin.current_price.toLocaleString()}</TableCell>
+                <TableCell>
+                  {currency.symbol} {coin.current_price.toLocaleString()}
+                </TableCell>
                 <TableCell className="text-right">
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={(e) => {
-                      e.stopPropagation(); // prevent triggering row toggle
+                      e.stopPropagation();
                       handleExpand(coin.id);
                     }}
                   >
-                    {expandedRow === coin.id ? <ChevronUp className="cursor-none:"/> : <ChevronDown className="cursor-none:"/>}
+                    {expandedRow === coin.id ? <ChevronUp /> : <ChevronDown />}
                   </Button>
                 </TableCell>
               </TableRow>
-
               {expandedRow === coin.id && (
-                <TableRow key={`${coin.id}-expanded-chart-row`}>
-                  <TableCell colSpan={7}>
+                <TableRow key={`${coin.id}-expanded`}>
+                  <TableCell colSpan={11}>
                     {loadingChart ? (
                       <div className="text-center p-4">⏳ Loading chart...</div>
                     ) : (
                       <div className="w-full h-72 my-5">
-                        <CryptoChart
-                          key={`${coin.id}-chart`}
-                        
-                        />
+                        <CryptoChart key={`${coin.id}-chart`} />
                       </div>
                     )}
                   </TableCell>
@@ -194,17 +251,17 @@ useEffect(() => {
         </TableBody>
       </Table>
 
-        <div className="mt-4 flex justify-center items-center">
+      <div className="mt-4 flex justify-center items-center">
         <Pagination>
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
-                href="#"  
+                href="#"
                 onClick={(e) => {
                   e.preventDefault();
                   setCurrentPage((p) => Math.max(1, p - 1));
                 }}
-                isActive={currentPage === 1}  
+                isActive={currentPage === 1}
               />
             </PaginationItem>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -221,15 +278,14 @@ useEffect(() => {
                 </PaginationLink>
               </PaginationItem>
             ))}
-
             <PaginationItem>
               <PaginationNext
-                href="#" // Use # or handle navigation via onClick
+                href="#"
                 onClick={(e) => {
                   e.preventDefault();
                   setCurrentPage((p) => Math.min(totalPages, p + 1));
                 }}
-                isActive={currentPage === totalPages} // Disable if on last page
+                isActive={currentPage === totalPages}
               />
             </PaginationItem>
           </PaginationContent>

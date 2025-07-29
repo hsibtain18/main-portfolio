@@ -8,9 +8,9 @@ import clsx from 'clsx';
 
 const navItems = [
   { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+  { name: 'Wallet', icon: Package, href: '/dashboard/wallet' },
+  { name: 'Wishlist', icon: MessageSquareHeart, href: '/dashboard/wishlist' },
   { name: 'News', icon: Newspaper, href: '/orders' },
-  { name: 'Wishlist', icon: MessageSquareHeart, href: '/orders' },
-  { name: 'Wallet', icon: Package, href: '/products' },
 ];
 
 export default function Sidebar() {

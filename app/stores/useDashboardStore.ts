@@ -7,7 +7,15 @@ type Currency = {
   symbol: string;
   flag: string;
 };
-
+type UserCoin = {
+  coin: Coin;
+  qty: number;
+  purchasePrice: number;
+};
+type WalletDetails = {
+  coinCount: number;
+  totalAmount:number
+}
 type PreferenceState = {
   currency: Currency;
   theme: "light" | "dark";
@@ -18,7 +26,11 @@ type PreferenceState = {
   Trending: TrendingData;
   loading: boolean;
   error: string | null;
+  WalletCoin: UserCoin[];
+  WalletDetails :WalletDetails
   setTrending: (Trending: TrendingData) => void;
+  setWalletDetails: (details: WalletDetails) => void;
+  setWalletCoin: (WalletCoin: UserCoin[]) => void;
   setFavorites: (Favorites: Coin[]) => void;
   setCoinList: (CoinList: Coin[]) => void;
   setDays: (days: number) => void;
@@ -114,14 +126,20 @@ export const usePreferenceStore = create<PreferenceState>()((set) => ({
   days: 180,
   CoinList: [],
   Favorites: [],
- Trending: {
+  Trending: {
     coins: [],
     nfts: [],
     categories: [],
   },
   loading: false,
   error: null,
-
+  WalletCoin: [],
+  WalletDetails:{
+    coinCount:0,
+    totalAmount:0.0
+  },
+  setWalletDetails:(WalletDetails)=> set({WalletDetails}),
+  setWalletCoin:(WalletCoin) => set({WalletCoin}),
   setTrending: (Trending) => set({ Trending }),
   setFavorites: (Favorites) => set({ Favorites }),
   setCoinList: (CoinList) => set({ CoinList }),
@@ -133,7 +151,9 @@ export const usePreferenceStore = create<PreferenceState>()((set) => ({
   fetchCoinList: async (currencyCode) => {
     try {
       set({ loading: true, error: null });
-      const res = await fetch(`/api/crypto?currency=${currencyCode.toLowerCase()}`);
+      const res = await fetch(
+        `/api/crypto?currency=${currencyCode.toLowerCase()}`
+      );
       const json = await res.json();
       set({ CoinList: json, loading: false });
     } catch (err: any) {
@@ -144,12 +164,17 @@ export const usePreferenceStore = create<PreferenceState>()((set) => ({
   fetchTrendingCoins: async () => {
     try {
       set({ loading: true, error: null });
-      const res = await fetch('https://api.coingecko.com/api/v3/search/trending');
+      const res = await fetch(
+        "https://api.coingecko.com/api/v3/search/trending"
+      );
       const json = await res.json();
       const trending = json;
       set({ Trending: trending, loading: false });
     } catch (err: any) {
-      set({ error: err.message || "Failed to fetch trending coins", loading: false });
+      set({
+        error: err.message || "Failed to fetch trending coins",
+        loading: false,
+      });
     }
   },
 }));
