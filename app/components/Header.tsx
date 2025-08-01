@@ -8,14 +8,18 @@ import { Sun, Moon, ChevronDown } from "lucide-react";
 import gsap from "gsap";
 import { currencies } from "../constant/experienceData";
 import { usePreferenceStore } from "../stores/useDashboardStore";
+import { useSession } from "next-auth/react";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
   const iconRef = useRef<HTMLButtonElement>(null);
   const [mounted, setMounted] = useState(false);
-  const { currency, setCurrency } = usePreferenceStore();
+  const { currency, setCurrency,setSubID } = usePreferenceStore();
   const [open, setOpen] = useState(false);
-
+  const session = useSession({ required: true }); //p this is being called 10 times and on 6th time i get data in session after user login and redirect to dashboard where it is displayed on dashboard layout
+  // if(session.data?.user?.userId){
+  //   setSubID(session.data.user.userId )
+  // }
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -30,9 +34,9 @@ export default function Header() {
     }
     setTheme(theme === "dark" ? "light" : "dark");
   };
-if(!mounted){
-  return null
-}
+  if (!mounted) {
+    return null;
+  }
   return (
     <header className="flex justify-between items-center px-6 py-4 bg-white dark:bg-gray-900 border-b dark:border-gray-800 shadow-sm">
       <h1 className="text-lg font-semibold text-gray-800 dark:text-white">
@@ -82,30 +86,32 @@ if(!mounted){
             </div>
           )}
         </div>
+        {!session?.data?.user?.email && (
+          <>
+            <Link
+              href="/login"
+              className="px-4 py-2 text-sm font-semibold border border-gray-300 dark:border-gray-700 rounded-md text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+            >
+              Login
+            </Link>
 
-        {/* Login/Signup */}
-        <Link
-          href="/login"
-          className="px-4 py-2 text-sm font-semibold border border-gray-300 dark:border-gray-700 rounded-md text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+            <Link
+              href="/signup"
+              className="px-4 py-2 text-sm font-semibold rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-md transition"
+            >
+              Sign Up
+            </Link>
+          </>
+        )}
+
+        <button
+          ref={iconRef}
+          onClick={toggleTheme}
+          className="p-2 rounded-full border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+          title="Toggle Theme"
         >
-          Login
-        </Link>
-
-        <Link
-          href="/signup"
-          className="px-4 py-2 text-sm font-semibold rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-md transition"
-        >
-          Sign Up
-        </Link>
-
-          <button
-            ref={iconRef}
-            onClick={toggleTheme}
-            className="p-2 rounded-full border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-            title="Toggle Theme"
-          >
-            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
+          {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
       </div>
     </header>
   );

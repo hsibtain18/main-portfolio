@@ -3,6 +3,7 @@ import { SessionProvider } from "next-auth/react";
 import Header from "../components/Header";
 import Sidebar from "../components/SideNavigation";
 import { Providers } from "../ThemeProvider/ThemeProvider ";
+import InitSubID from "../components/SubSave";
 
 export default function DashboardLayout({
   children,
@@ -20,6 +21,7 @@ export default function DashboardLayout({
               <div className="p-6">{children}</div>
             </main>
           </div>
+          <InitSubID/>
         </Providers>
       </SessionProvider>
     </>

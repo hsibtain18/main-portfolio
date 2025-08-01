@@ -24,10 +24,11 @@ type PreferenceState = {
   CoinList: Coin[];
   Favorites: Coin[];
   Trending: TrendingData;
+  subID:string;
   loading: boolean;
   error: string | null;
   WalletCoin: UserCoin[];
-  WalletDetails :WalletDetails
+  WalletDetails :WalletDetails;
   setTrending: (Trending: TrendingData) => void;
   setWalletDetails: (details: WalletDetails) => void;
   setWalletCoin: (WalletCoin: UserCoin[]) => void;
@@ -35,6 +36,7 @@ type PreferenceState = {
   setCoinList: (CoinList: Coin[]) => void;
   setDays: (days: number) => void;
   setCoin: (coin: string) => void;
+  setSubID: (subID: string) => void;
   setCurrency: (currency: Currency) => void;
   setTheme: (theme: "light" | "dark") => void;
   fetchCoinList: (currencyCode: string) => Promise<void>;
@@ -138,6 +140,8 @@ export const usePreferenceStore = create<PreferenceState>()((set) => ({
     coinCount:0,
     totalAmount:0.0
   },
+  subID:'',
+  setSubID: (subID)=> set({subID}),
   setWalletDetails:(WalletDetails)=> set({WalletDetails}),
   setWalletCoin:(WalletCoin) => set({WalletCoin}),
   setTrending: (Trending) => set({ Trending }),

@@ -31,6 +31,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Coin } from "@/app/constant/experienceData";
+import { apiPost } from "@/lib/apis";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -61,6 +62,7 @@ export default function CryptoTable() {
     Favorites,
     setCoin,
     setFavorites,
+    subID,
   } = usePreferenceStore();
 
   const filteredData = CoinList?.filter(
@@ -79,6 +81,9 @@ export default function CryptoTable() {
     Favorites.some((fav) => fav.id === coin.id);
 
   const toggleFavorite = (coin: Coin) => {
+    apiPost("wishlist/", subID, { coin: coin.id, SUid: subID }).then(
+      (val: any) => {}
+    );
     if (isFavorite(coin)) {
       setFavorites(Favorites.filter((fav) => fav.id !== coin.id));
     } else {

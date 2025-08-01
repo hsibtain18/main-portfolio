@@ -2,7 +2,8 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
-
+import type {  Session, User } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import {
   CognitoUserPool,
   CognitoUser,
@@ -52,9 +53,15 @@ export const authOptions = {
 
           cognitoUser.authenticateUser(authDetails, {
             onSuccess: (result) => {
-              console.log("✅ Cognito login successful");
+
+            const idToken = result.getIdToken().getJwtToken();
+              const payload = JSON.parse(
+                Buffer.from(idToken.split(".")[1], "base64").toString()
+              );
+              console.log(idToken,payload);
+              
               resolve({
-                id: credentials.email,
+                id: payload.sub,
                 email: credentials.email,
               });
             },
@@ -67,6 +74,20 @@ export const authOptions = {
       },
     }),
   ],
+  callbacks: {
+  async jwt({ token, user }: { token: JWT; user?: User }) {
+    if (user) {
+      token.userId = (user as any).id ?? (user as any).sub ?? null;
+    }
+    return token;
+  },
+  async session({ session, token }: { session: Session; token: JWT }) {
+    if (token?.userId) {
+      session.user.userId = token.userId as string;
+    }
+    return session;
+  },
+},
   pages: {
     signIn: "/login",
   },

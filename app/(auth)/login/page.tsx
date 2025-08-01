@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { signIn } from "next-auth/react";  
+import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
- 
+
 const getInitialTheme = () => {
   if (typeof window !== "undefined" && localStorage.getItem("theme")) {
     return localStorage.getItem("theme") as "light" | "dark";
@@ -52,24 +52,30 @@ export default function LoginForm() {
       email,
       password,
       redirect: false,
-      callbackUrl:'/dashboard'
+      callbackUrl: "/dashboard",
     });
     setLoading(false);
 
     if (result?.error) {
       setError(result.error);
     } else if (result?.ok) {
-      router.push("/dashboard");
+      debugger
+      const interval = setInterval(async () => {
+        const session = await getSession();
+        if (session) {
+          clearInterval(interval);
+          router.push("/dashboard");
+        }
+      }, 100);
     }
   };
 
   const handleSocialLogin = async (provider: string) => {
     setLoading(true);
-    // When using signIn with a provider, NextAuth.js handles the redirect
     await signIn(provider, { callbackUrl: "/dashboard" });
-    setLoading(false); // This might not be reached if redirect happens quickly
+    setLoading(false);  
   };
-   if (!mounted) {
+  if (!mounted) {
     return null;
   }
 
