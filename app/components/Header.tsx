@@ -8,22 +8,26 @@ import { Sun, Moon, ChevronDown } from "lucide-react";
 import gsap from "gsap";
 import { currencies } from "../constant/experienceData";
 import { usePreferenceStore } from "../stores/useDashboardStore";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
   const iconRef = useRef<HTMLButtonElement>(null);
   const [mounted, setMounted] = useState(false);
-  const { currency, setCurrency,setSubID } = usePreferenceStore();
+  const { currency, setCurrency, setSubID } = usePreferenceStore();
   const [open, setOpen] = useState(false);
-  const session = useSession({ required: true }); //p this is being called 10 times and on 6th time i get data in session after user login and redirect to dashboard where it is displayed on dashboard layout
+  const session = useSession(); //p this is being called 10 times and on 6th time i get data in session after user login and redirect to dashboard where it is displayed on dashboard layout
   // if(session.data?.user?.userId){
   //   setSubID(session.data.user.userId )
   // }
   useEffect(() => {
     setMounted(true);
   }, []);
-
+  const handleLogout = async () => {
+   
+    await signOut({redirect: false }); 
+    setSubID("");
+  };
   const toggleTheme = () => {
     if (iconRef.current) {
       gsap.fromTo(
@@ -86,7 +90,14 @@ export default function Header() {
             </div>
           )}
         </div>
-        {!session?.data?.user?.email && (
+        {session?.data?.user?.email ? (
+        <button
+            onClick={handleLogout}
+            className="px-4 py-2 text-sm font-semibold rounded-md bg-red-600 text-white hover:bg-red-700 shadow-md transition"
+          >
+            Logout
+          </button>
+        ) : (
           <>
             <Link
               href="/login"

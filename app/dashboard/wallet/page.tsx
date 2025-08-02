@@ -30,6 +30,7 @@ export default function WalletComponent() {
     currency,
     fetchCoinList,
     WalletCoin,
+    subID,
     setWalletCoin,
     setWalletDetails,
   } = usePreferenceStore();
@@ -37,7 +38,6 @@ export default function WalletComponent() {
   const [open, setOpen] = useState(false);
   const [selectedCoin, setSelectedCoin] = useState<Coin | null>(null);
   const [qty, setQty] = useState(0.00001);
-  const Data = useSession();
 
   useEffect(() => {
     // signOut()
@@ -94,7 +94,7 @@ export default function WalletComponent() {
     0
   );
   const profit = totalValue - initialInvestment;
-  if (Data.data) {
+  if (!subID) {
     return (
       <div className="w-full  h-full flex justify-center align-middle content-center">
         <LoginPlaceholder />

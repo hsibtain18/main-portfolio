@@ -31,7 +31,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Coin } from "@/app/constant/experienceData";
-import { apiDelete, apiPost } from "@/lib/apis";
+import { apiDelete, apiGet, apiPost } from "@/lib/apis";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -97,6 +97,16 @@ export default function CryptoTable() {
     await fetchTrendingCoins();
     setLastUpdated(new Date());
   };
+  const getAllFavorites = () => {
+    const fav = apiGet(`wishlist/` + subID, subID).then((val: any) => {
+      console.log(val);
+    });
+  };
+  useEffect(() => {
+    if (subID) {
+      getAllFavorites();
+    }
+  }, [subID]);
 
   useEffect(() => {
     reloadData();
@@ -144,7 +154,7 @@ export default function CryptoTable() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Favorite </TableHead>
+            {subID && <TableHead>Favorite </TableHead>}
             <TableHead>Rank</TableHead>
             <TableHead>Icon</TableHead>
             <TableHead>Name</TableHead>
@@ -161,28 +171,30 @@ export default function CryptoTable() {
           {currentData.map((coin) => (
             <React.Fragment key={coin.id}>
               <TableRow onClick={() => handleExpand(coin.id)}>
-                <TableCell>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(coin);
-                    }}
-                  >
-                    {isFavorite(coin) ? (
-                      <Bookmark
-                        className="text-red-500 fill-red-500"
-                        size={16}
-                      />
-                    ) : (
-                      <BookmarkCheck
-                        className="text-muted-foreground"
-                        size={16}
-                      />
-                    )}
-                  </Button>
-                </TableCell>
+                {subID && (
+                  <TableCell>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(coin);
+                      }}
+                    >
+                      {isFavorite(coin) ? (
+                        <Bookmark
+                          className="text-red-500 fill-red-500"
+                          size={16}
+                        />
+                      ) : (
+                        <BookmarkCheck
+                          className="text-muted-foreground"
+                          size={16}
+                        />
+                      )}
+                    </Button>
+                  </TableCell>
+                )}
                 <TableCell>{coin.market_cap_rank}</TableCell>
                 <TableCell>
                   <img

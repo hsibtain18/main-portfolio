@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface LoginPromptCardProps {
   title?: string;
@@ -13,9 +14,12 @@ export default function LoginPlaceholder({
       <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
         You need to be logged in to view this content.
       </p>
-      <Button variant="default" className="px-6 py-2">
+      <Link
+        href="/login"
+        className="px-4 py-2 text-sm font-semibold border border-gray-300 dark:border-gray-700 rounded-md text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+      >
         Login
-      </Button>
+      </Link>
     </div>
   );
 }

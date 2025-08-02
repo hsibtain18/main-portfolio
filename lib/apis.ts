@@ -25,3 +25,14 @@ export async function apiDelete<T>(path:string,token:string):Promise<T>{
      if (!res.ok) throw new Error(`POST ${path} failed: ${res.status}`);
   return res.json();
 }
+export async function apiGet<T>(path:string,token:string):Promise<T>{
+    const res = await fetch(`${API_BASE_URL}${path}`,{
+        method:"GET",
+         headers: {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+    });
+     if (!res.ok) throw new Error(`POST ${path} failed: ${res.status}`);
+  return res.json();
+}
