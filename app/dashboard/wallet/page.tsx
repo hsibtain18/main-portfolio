@@ -17,6 +17,7 @@ import { Coin } from "@/app/constant/experienceData";
 import { usePreferenceStore } from "@/app/stores/useDashboardStore";
 import { signOut, useSession } from "next-auth/react";
 import LoginPlaceholder from "@/app/components/LoginPlaceholder";
+import AddCoinDialog from "@/app/components/AddCoinDialog";
 
 type UserCoin = {
   coin: Coin;
@@ -38,6 +39,7 @@ export default function WalletComponent() {
   const [open, setOpen] = useState(false);
   const [selectedCoin, setSelectedCoin] = useState<Coin | null>(null);
   const [qty, setQty] = useState(0.00001);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     // signOut()
@@ -138,7 +140,7 @@ export default function WalletComponent() {
           </Card>
         </div>
 
-        <div className="flex justify-end">
+        {/* <div className="flex justify-end">
           <Dialog open={open} onOpenChange={setOpen}>
             {open && <DialogTitle>Add Coin</DialogTitle>}
             <DialogTrigger asChild>
@@ -190,12 +192,12 @@ export default function WalletComponent() {
               </div>
             </DialogContent>
           </Dialog>
-        </div>
+        </div> */}
 
         {WalletCoin.length === 0 ? (
           <div className="text-center text-muted-foreground py-8">
             <p className="my-5"> No coins added. </p>
-            <Button onClick={() => setOpen(true)}>Add Coin</Button>
+            <AddCoinDialog open={dialogOpen} setOpen={setDialogOpen} />
           </div>
         ) : (
           <div className="overflow-auto">

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Coin } from "../constant/experienceData";
+import { apiPost } from "@/lib/apis";
 
 type Currency = {
   code: string;
@@ -14,8 +15,8 @@ type UserCoin = {
 };
 type WalletDetails = {
   coinCount: number;
-  totalAmount:number
-}
+  totalAmount: number;
+};
 type PreferenceState = {
   currency: Currency;
   theme: "light" | "dark";
@@ -24,15 +25,15 @@ type PreferenceState = {
   CoinList: Coin[];
   Favorites: Coin[];
   Trending: TrendingData;
-  subID:string;
+  subID: string;
   loading: boolean;
   error: string | null;
   WalletCoin: UserCoin[];
-  WalletDetails :WalletDetails;
+  WalletDetails: WalletDetails;
   setTrending: (Trending: TrendingData) => void;
   setWalletDetails: (details: WalletDetails) => void;
   setWalletCoin: (WalletCoin: UserCoin[]) => void;
-  setFavorites: (Favorites: Coin[]) => void;
+  setFavorites: (favorites: Coin[] | ((prev: Coin[]) => Coin[])) => void;
   setCoinList: (CoinList: Coin[]) => void;
   setDays: (days: number) => void;
   setCoin: (coin: string) => void;
@@ -41,6 +42,8 @@ type PreferenceState = {
   setTheme: (theme: "light" | "dark") => void;
   fetchCoinList: (currencyCode: string) => Promise<void>;
   fetchTrendingCoins: () => Promise<void>;
+  addCoinToWallet: (coin: Coin, qty: number) => Promise<void>;
+  recalculateWalletDetails: () => void;
 };
 export type TrendingData = {
   coins: {
@@ -116,7 +119,7 @@ export type CategoryTrendingItem = {
     sparkline: string;
   };
 };
-export const usePreferenceStore = create<PreferenceState>()((set) => ({
+export const usePreferenceStore = create<PreferenceState>()((set, get) => ({
   currency: {
     code: "USD",
     name: "US Dollar",
@@ -136,16 +139,22 @@ export const usePreferenceStore = create<PreferenceState>()((set) => ({
   loading: false,
   error: null,
   WalletCoin: [],
-  WalletDetails:{
-    coinCount:0,
-    totalAmount:0.0
+  WalletDetails: {
+    coinCount: 0,
+    totalAmount: 0.0,
   },
-  subID:'',
-  setSubID: (subID)=> set({subID}),
-  setWalletDetails:(WalletDetails)=> set({WalletDetails}),
-  setWalletCoin:(WalletCoin) => set({WalletCoin}),
+  subID: "",
+  setSubID: (subID) => set({ subID }),
+  setWalletDetails: (WalletDetails) => set({ WalletDetails }),
+  setWalletCoin: (WalletCoin) => set({ WalletCoin }),
   setTrending: (Trending) => set({ Trending }),
-  setFavorites: (Favorites) => set({ Favorites }),
+  setFavorites: (favorites) =>
+    set((state) => ({
+      Favorites:
+        typeof favorites === "function"
+          ? favorites(state.Favorites)
+          : favorites,
+    })),
   setCoinList: (CoinList) => set({ CoinList }),
   setDays: (days) => set({ days }),
   setCoin: (coin) => set({ coin }),
@@ -179,6 +188,50 @@ export const usePreferenceStore = create<PreferenceState>()((set) => ({
         error: err.message || "Failed to fetch trending coins",
         loading: false,
       });
+    }
+  },
+  recalculateWalletDetails: () => {
+    const { WalletCoin } = get();
+    const coinCount = WalletCoin.length;
+    const totalAmount = WalletCoin.reduce(
+      (sum, item) => sum + item.qty * item.coin.current_price,
+      0
+    );
+    set({ WalletDetails: { coinCount, totalAmount } });
+  },
+
+  // ✅ New central logic: Add Coin to Wallet + Call API
+  addCoinToWallet: async (coin, qty) => {
+    const { WalletCoin, subID } = get();
+    const type = "purchase";
+    const amount = qty * coin.current_price;
+    const description = `Added ${qty} ${coin.symbol.toUpperCase()} at ${
+      coin.current_price
+    } ${get().currency.code}`;
+
+    // Update local wallet
+    set(() => {
+      const existing = WalletCoin.find((c) => c.coin.id === coin.id);
+      const updated = existing
+        ? WalletCoin.map((item) =>
+            item.coin.id === coin.id ? { ...item, qty: item.qty + qty } : item
+          )
+        : [...WalletCoin, { coin, qty, purchasePrice: coin.current_price }];
+      return { WalletCoin: updated };
+    });
+
+    get().recalculateWalletDetails();
+    try {
+      await apiPost(`wallet/`, subID, {
+        amount,
+        type,
+        description,
+        coinId: coin.id,
+        qty,
+        price: coin.current_price,
+      });
+    } catch (err) {
+      console.error("Failed to sync wallet entry with backend:", err);
     }
   },
 }));

@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -16,9 +17,7 @@ import {
   Bookmark,
   BookmarkCheck,
 } from "lucide-react";
-import { useEffect, useState } from "react";
 import CryptoChart from "@/app/components/CryptoChart";
-import React from "react";
 import { usePreferenceStore } from "@/app/stores/useDashboardStore";
 import {
   Pagination,
@@ -45,13 +44,33 @@ function useDebounce<T>(value: T, delay: number): T {
 const ITEMS_PER_PAGE = 10;
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
+type SortKey =
+  | "market_cap_rank"
+  | "name"
+  | "market_cap"
+  | "price_change_percentage_1h_in_currency"
+  | "price_change_percentage_24h_in_currency"
+  | "price_change_percentage_7d_in_currency"
+  | "current_price";
+
+type SortDirection = "asc" | "desc";
+
+interface SortState {
+  key: SortKey;
+  direction: SortDirection;
+}
+
 export default function CryptoTable() {
+  const [sortState, setSortState] = useState<SortState[]>([
+    { key: "market_cap_rank", direction: "asc" },
+  ]);
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [loadingChart, setLoadingChart] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const {
@@ -65,7 +84,27 @@ export default function CryptoTable() {
     subID,
   } = usePreferenceStore();
 
-  const filteredData = CoinList?.filter(
+  function compareValues<T>(a: T, b: T, direction: SortDirection): number {
+    if (typeof a === "string" && typeof b === "string") {
+      return direction === "asc" ? a.localeCompare(b) : b.localeCompare(a);
+    }
+    if (typeof a === "number" && typeof b === "number") {
+      return direction === "asc" ? a - b : b - a;
+    }
+    return 0;
+  }
+
+  const sortedData = [...CoinList].sort((a, b) => {
+    for (const { key, direction } of sortState) {
+      const aVal = a[key];
+      const bVal = b[key];
+      const result = compareValues(aVal, bVal, direction);
+      if (result !== 0) return result;
+    }
+    return 0;
+  });
+
+  const filteredData = sortedData.filter(
     (coin) =>
       coin.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
       coin.symbol.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
@@ -77,57 +116,95 @@ export default function CryptoTable() {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const isFavorite = (coin: Coin) =>
-    Favorites.some((fav) => fav.id === coin.id);
+  const isFavorite = (coin: Coin) => Favorites.some((fav) => fav.id === coin.id);
 
-  const toggleFavorite = (coin: Coin) => {
-    if (isFavorite(coin)) {
-      apiDelete(`wishlist/${subID}/${coin.id}`, subID).then((val: any) => {});
-      setFavorites(Favorites.filter((fav) => fav.id !== coin.id));
+  const toggleFavorite = async (coin: Coin) => {
+    if (!subID) {
+      console.warn("User not logged in, cannot toggle favorite.");
+      return;
+    }
+    const isAlreadyFavorite = isFavorite(coin);
+    if (isAlreadyFavorite) {
+      try {
+        await apiDelete(`wishlist/${subID}/${coin.id}`, subID);
+        setFavorites(Favorites.filter((fav) => fav.id !== coin.id));
+      } catch (err) {
+        console.error("Error deleting favorite:", err);
+      }
     } else {
-      apiPost("wishlist/", subID, { coin: coin.id, SUid: subID }).then(
-        (val: any) => {}
-      );
-      setFavorites([...Favorites, coin]);
+      try {
+        await apiPost("wishlist/", subID, { itemId: coin.id, userId: subID });
+        setFavorites([...Favorites, coin]);
+      } catch (err) {
+        console.error("Error adding favorite:", err);
+      }
     }
   };
 
-  const reloadData = async () => {
+  const handleSort = (key: SortKey) => {
+    setSortState((prev) => {
+      const existingIndex = prev.findIndex((s) => s.key === key);
+      if (existingIndex >= 0) {
+        const newDirection = prev[existingIndex].direction === "asc" ? "desc" : "asc";
+        const newSort = [...prev];
+        newSort[existingIndex] = { key, direction: newDirection };
+        return newSort;
+      } else {
+        return [{ key, direction: "asc" }, ...prev];
+      }
+    });
+    setCurrentPage(1);
+  };
+
+ 
+    const reloadData = async () => {
     await fetchCoinList(currency.code);
     await fetchTrendingCoins();
 
-    setTimeout(async () => {
-      if (subID) {
-        try {
-          const favIds: string[] = await apiGet(`wishlist/${subID}`, subID);
-          const favCoins = usePreferenceStore
-            .getState()
-            .CoinList.filter((coin) => favIds.includes(coin.id));
-          setFavorites(favCoins);
-        } catch (err) {
-          console.error("Error fetching favorites", err);
-          setFavorites([]);
+    if (subID) {
+      try {
+        const favIds: string[] = await apiGet(`wishlist/${subID}`, subID);
+        
+        // Retry logic for fetching favCoins if CoinList is empty
+        let favCoins: Coin[] = [];
+        let retries = 0;
+        const maxRetries = 5;
+        const retryDelayMs = 1000;
+
+        while (usePreferenceStore.getState().CoinList.length === 0 && retries < maxRetries) {
+            console.log(`CoinList is empty, retrying in ${retryDelayMs / 1000}s... (Attempt ${retries + 1}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, retryDelayMs));
+            retries++;
         }
-      } else {
+        
+        // After the loop, check if CoinList has data and then filter
+        const currentCoinList = usePreferenceStore.getState().CoinList;
+        if (currentCoinList.length > 0) {
+            favCoins = currentCoinList.filter((coin) => favIds.includes(coin.id));
+        }
+
+        setFavorites(favCoins);
+      } catch (err) {
+        console.error("Error fetching favorites:", err);
         setFavorites([]);
       }
+    } else {
+      setFavorites([]);
+    }
 
-      setLastUpdated(new Date());
-    }, 100);
+    setLastUpdated(new Date());
   };
 
   useEffect(() => {
     if (!currency.code) return;
     reloadData();
 
-    const interval = setInterval(() => {
-      reloadData();
-    }, REFRESH_INTERVAL_MS);
-
+    const interval = setInterval(reloadData, REFRESH_INTERVAL_MS);
     setMounted(true);
     return () => clearInterval(interval);
   }, [currency.code, subID]);
-  const handleExpand = async (coinId: string) => {
+
+  const handleExpand = (coinId: string) => {
     if (expandedRow === coinId) {
       setExpandedRow(null);
       return;
@@ -139,6 +216,41 @@ export default function CryptoTable() {
   };
 
   if (!mounted) return null;
+
+  const renderSortableHeader = (label: string, key: SortKey) => {
+    const sortIndex = sortState.findIndex((s) => s.key === key);
+    const isSorted = sortIndex !== -1;
+    const direction = isSorted ? sortState[sortIndex].direction : "asc";
+
+    return (
+      <TableHead>
+        <button
+          onClick={() => handleSort(key)}
+          className="flex items-center group text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          aria-sort={
+            isSorted ? (direction === "asc" ? "ascending" : "descending") : "none"
+          }
+          type="button"
+        >
+          {label}
+          {isSorted ? (
+            <ChevronUp
+              className={`ml-1 h-4 w-4 transition-transform ${
+                direction === "desc" ? "rotate-180" : ""
+              }`}
+            />
+          ) : (
+            <ChevronUp className="ml-1 h-4 w-4 opacity-0 group-hover:opacity-40" />
+          )}
+          {/* {isSorted && sortState.length > 1 && (
+            <span className="ml-1 text-xs text-muted-foreground select-none">
+              {sortIndex + 1}
+            </span>
+          )} */}
+        </button>
+      </TableHead>
+    );
+  };
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-6">
@@ -164,16 +276,16 @@ export default function CryptoTable() {
       <Table>
         <TableHeader>
           <TableRow>
-            {subID && <TableHead>Favorite </TableHead>}
-            <TableHead>Rank</TableHead>
+            {subID && <TableHead>Favorite</TableHead>}
+            {renderSortableHeader("Rank", "market_cap_rank")}
             <TableHead>Icon</TableHead>
-            <TableHead>Name</TableHead>
+            {renderSortableHeader("Name", "name")}
             <TableHead>Symbol</TableHead>
-            <TableHead>Market Cap</TableHead>
-            <TableHead>1h %</TableHead>
-            <TableHead>24h %</TableHead>
-            <TableHead>7d %</TableHead>
-            <TableHead>Price ({currency.code})</TableHead>
+            {renderSortableHeader("Market Cap", "market_cap")}
+            {renderSortableHeader("1h %", "price_change_percentage_1h_in_currency")}
+            {renderSortableHeader("24h %", "price_change_percentage_24h_in_currency")}
+            {renderSortableHeader("7d %", "price_change_percentage_7d_in_currency")}
+            {renderSortableHeader(`Price (${currency.code})`, "current_price")}
             <TableHead className="text-right">Expand</TableHead>
           </TableRow>
         </TableHeader>

@@ -1,12 +1,15 @@
-"use client";
+"use client"; 
+import AddCoinDialog from "@/app/components/AddCoinDialog";
 import LoginPlaceholder from "@/app/components/LoginPlaceholder";
 import { usePreferenceStore } from "@/app/stores/useDashboardStore";
 import { Button } from "@/components/ui/button";
 import { BookmarkCheck, Rocket, Wallet } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useState } from "react";
 
 const WalletCard = () => {
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { Trending, loading, Favorites, WalletDetails, currency, subID } =
     usePreferenceStore();
 
@@ -17,23 +20,30 @@ const WalletCard = () => {
           <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100 flex">
             <Wallet className="mr-3" /> Wallet Summary
           </h3>
-          <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-6">
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Coins in wallet:{" "}
-              <span className="font-medium text-black dark:text-white">
-                {WalletDetails.coinCount}
-              </span>
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Total Value:{" "}
-              <span className="font-medium text-black dark:text-white">
-                {currency.symbol}{" "}
-                {WalletDetails.totalAmount?.toLocaleString(undefined, {
-                  maximumFractionDigits: 2,
-                })}
-              </span>
-            </p>
-          </div>
+          {WalletDetails.coinCount > 0 ? (
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-6">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Coins in wallet:{" "}
+                <span className="font-medium text-black dark:text-white">
+                  {WalletDetails.coinCount}
+                </span>
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Total Value:{" "}
+                <span className="font-medium text-black dark:text-white">
+                  {currency.symbol}{" "}
+                  {WalletDetails.totalAmount?.toLocaleString(undefined, {
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
+              </p>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center w-full h-40">
+              <AddCoinDialog open={dialogOpen} setOpen={setDialogOpen} />
+              {/* <Button onClick={() => setDialogOpen(true)}>Add Cascoins</Button> */}
+            </div>
+          )}
         </div>
       ) : (
         <LoginPlaceholder title="Wallet" />
@@ -48,7 +58,7 @@ const WalletCard = () => {
             </h3>
             {Favorites.length > 0 && (
               <Link
-                href="/dashboard/trending"
+                href="/dashboard/wishlist"
                 className="flex items-center space-x-1 font-semibold text-slate-700 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
               >
                 <span>View more</span>
