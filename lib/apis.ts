@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://zwaznftpk9.execute-api.us-east-1.amazonaws.com/';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!; // Ensure it's not undefined
 
 export async function apiPost<T>(path: string, token: string, data: any): Promise<T> {
   const res = await fetch(`${API_BASE_URL}${path}${token || ''}`, {
