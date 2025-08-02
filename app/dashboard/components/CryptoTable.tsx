@@ -116,7 +116,8 @@ export default function CryptoTable() {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const isFavorite = (coin: Coin) => Favorites.some((fav) => fav.id === coin.id);
+  const isFavorite = (coin: Coin) =>
+    Favorites.some((fav) => fav.id === coin.id);
 
   const toggleFavorite = async (coin: Coin) => {
     if (!subID) {
@@ -145,7 +146,8 @@ export default function CryptoTable() {
     setSortState((prev) => {
       const existingIndex = prev.findIndex((s) => s.key === key);
       if (existingIndex >= 0) {
-        const newDirection = prev[existingIndex].direction === "asc" ? "desc" : "asc";
+        const newDirection =
+          prev[existingIndex].direction === "asc" ? "desc" : "asc";
         const newSort = [...prev];
         newSort[existingIndex] = { key, direction: newDirection };
         return newSort;
@@ -156,31 +158,38 @@ export default function CryptoTable() {
     setCurrentPage(1);
   };
 
- 
-    const reloadData = async () => {
+  const reloadData = async () => {
     await fetchCoinList(currency.code);
     await fetchTrendingCoins();
 
     if (subID) {
+     await apiGet("wallet/" + subID, subID).then((val) => {});
       try {
         const favIds: string[] = await apiGet(`wishlist/${subID}`, subID);
-        
+
         // Retry logic for fetching favCoins if CoinList is empty
         let favCoins: Coin[] = [];
         let retries = 0;
         const maxRetries = 5;
         const retryDelayMs = 1000;
 
-        while (usePreferenceStore.getState().CoinList.length === 0 && retries < maxRetries) {
-            console.log(`CoinList is empty, retrying in ${retryDelayMs / 1000}s... (Attempt ${retries + 1}/${maxRetries})`);
-            await new Promise(resolve => setTimeout(resolve, retryDelayMs));
-            retries++;
+        while (
+          usePreferenceStore.getState().CoinList.length === 0 &&
+          retries < maxRetries
+        ) {
+          console.log(
+            `CoinList is empty, retrying in ${
+              retryDelayMs / 1000
+            }s... (Attempt ${retries + 1}/${maxRetries})`
+          );
+          await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+          retries++;
         }
-        
+
         // After the loop, check if CoinList has data and then filter
         const currentCoinList = usePreferenceStore.getState().CoinList;
         if (currentCoinList.length > 0) {
-            favCoins = currentCoinList.filter((coin) => favIds.includes(coin.id));
+          favCoins = currentCoinList.filter((coin) => favIds.includes(coin.id));
         }
 
         setFavorites(favCoins);
@@ -228,7 +237,11 @@ export default function CryptoTable() {
           onClick={() => handleSort(key)}
           className="flex items-center group text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           aria-sort={
-            isSorted ? (direction === "asc" ? "ascending" : "descending") : "none"
+            isSorted
+              ? direction === "asc"
+                ? "ascending"
+                : "descending"
+              : "none"
           }
           type="button"
         >
@@ -282,9 +295,18 @@ export default function CryptoTable() {
             {renderSortableHeader("Name", "name")}
             <TableHead>Symbol</TableHead>
             {renderSortableHeader("Market Cap", "market_cap")}
-            {renderSortableHeader("1h %", "price_change_percentage_1h_in_currency")}
-            {renderSortableHeader("24h %", "price_change_percentage_24h_in_currency")}
-            {renderSortableHeader("7d %", "price_change_percentage_7d_in_currency")}
+            {renderSortableHeader(
+              "1h %",
+              "price_change_percentage_1h_in_currency"
+            )}
+            {renderSortableHeader(
+              "24h %",
+              "price_change_percentage_24h_in_currency"
+            )}
+            {renderSortableHeader(
+              "7d %",
+              "price_change_percentage_7d_in_currency"
+            )}
             {renderSortableHeader(`Price (${currency.code})`, "current_price")}
             <TableHead className="text-right">Expand</TableHead>
           </TableRow>

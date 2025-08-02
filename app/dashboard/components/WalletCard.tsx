@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 import AddCoinDialog from "@/app/components/AddCoinDialog";
 import LoginPlaceholder from "@/app/components/LoginPlaceholder";
 import { usePreferenceStore } from "@/app/stores/useDashboardStore";
@@ -6,13 +6,26 @@ import { Button } from "@/components/ui/button";
 import { BookmarkCheck, Rocket, Wallet } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const WalletCard = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const { Trending, loading, Favorites, WalletDetails, currency, subID } =
-    usePreferenceStore();
-
+  const {
+    Trending,
+    loading,
+    Favorites,
+    WalletDetails,
+    currency,
+    subID,
+    WalletCoin,
+    fetchWalletCoins,
+    CoinList
+  } = usePreferenceStore();
+useEffect(() => {
+  if (subID && CoinList.length > 0) {
+    fetchWalletCoins();
+  }
+}, [subID, CoinList]);
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
       {subID ? (
@@ -21,22 +34,71 @@ const WalletCard = () => {
             <Wallet className="mr-3" /> Wallet Summary
           </h3>
           {WalletDetails.coinCount > 0 ? (
-            <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-6">
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Coins in wallet:{" "}
-                <span className="font-medium text-black dark:text-white">
-                  {WalletDetails.coinCount}
-                </span>
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Total Value:{" "}
-                <span className="font-medium text-black dark:text-white">
-                  {currency.symbol}{" "}
-                  {WalletDetails.totalAmount?.toLocaleString(undefined, {
-                    maximumFractionDigits: 2,
-                  })}
-                </span>
-              </p>
+            <div className="space-y-4 mt-4">
+              {/* Overall Summary */}
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-6">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Coins in wallet:{" "}
+                  <span className="font-medium text-black dark:text-white">
+                    {WalletDetails.coinCount}
+                  </span>
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Total Value:{" "}
+                  <span className="font-medium text-black dark:text-white">
+                    {currency.symbol}{" "}
+                    {WalletDetails.totalAmount?.toLocaleString(undefined, {
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </p>
+              </div>
+
+              {/* Per-Coin Breakdown */}
+              {WalletCoin.length > 0 && (
+                <div className="overflow-auto border rounded-md">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted">
+                      <tr>
+                        <th className="p-2 text-left">Coin</th>
+                        <th className="p-2 text-right">Qty</th>
+                        <th className="p-2 text-right">Bought @</th>
+                        <th className="p-2 text-right">Current</th>
+                        <th className="p-2 text-right">P/L</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {WalletCoin.slice(0, 2).map((entry) => {
+                        const initial = entry.qty * entry.purchasePrice;
+                        const current = entry.qty * entry.coin.current_price;
+                        const profit = current - initial;
+                        return (
+                          <tr key={entry.entryID} className="border-t">
+                            <td className="p-2">{entry.coin.name}</td>
+                            <td className="p-2 text-right">{entry.qty}</td>
+                            <td className="p-2 text-right">
+                              {currency.symbol}
+                              {initial.toFixed(2)}
+                            </td>
+                            <td className="p-2 text-right">
+                              {currency.symbol}
+                              {current.toFixed(2)}
+                            </td>
+                            <td
+                              className={`p-2 text-right ${
+                                profit >= 0 ? "text-green-600" : "text-red-600"
+                              }`}
+                            >
+                              {currency.symbol}
+                              {profit.toFixed(2)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex items-center justify-center w-full h-40">

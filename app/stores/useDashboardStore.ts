@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Coin } from "../constant/experienceData";
-import { apiPost } from "@/lib/apis";
+import { apiGet, apiPost } from "@/lib/apis";
 
 type Currency = {
   code: string;
@@ -12,10 +12,22 @@ type UserCoin = {
   coin: Coin;
   qty: number;
   purchasePrice: number;
+  entryID?: string;
 };
 type WalletDetails = {
   coinCount: number;
   totalAmount: number;
+};
+type WalletEntryResponse = {
+  userId: string;
+  qty: number;
+  createdAt: string;
+  amount: number;
+  price: number;
+  description: string;
+  coinId: string;
+  type: string;
+  entryID: string;
 };
 type PreferenceState = {
   currency: Currency;
@@ -44,6 +56,7 @@ type PreferenceState = {
   fetchTrendingCoins: () => Promise<void>;
   addCoinToWallet: (coin: Coin, qty: number) => Promise<void>;
   recalculateWalletDetails: () => void;
+  fetchWalletCoins: () => Promise<void>;
 };
 export type TrendingData = {
   coins: {
@@ -173,7 +186,42 @@ export const usePreferenceStore = create<PreferenceState>()((set, get) => ({
       set({ error: err.message || "Failed to fetch CoinList", loading: false });
     }
   },
+  fetchWalletCoins: async () => {
+    const { subID, CoinList } = get();
+    if (!subID) return;
 
+    try {
+      set({ loading: true, error: null });
+
+      const res = await apiGet(`wallet/${subID}`, subID);
+
+      const entries = res as WalletEntryResponse[];
+
+      const walletCoins = entries
+        .map((entry) => {
+          const coin = CoinList.find((c) => c.id === entry.coinId);
+          if (!coin) return null;
+
+          return {
+            coin,
+            qty: entry.qty,
+            purchasePrice: entry.price,
+            entryID: entry.entryID,
+          };
+        })
+        .filter(Boolean) as UserCoin[]; // typecast after filtering nulls
+
+      set({ WalletCoin: walletCoins });
+      get().recalculateWalletDetails();
+      set({ loading: false });
+    } catch (err: any) {
+      console.error("Error fetching wallet coins:", err);
+      set({
+        error: err.message || "Failed to fetch wallet coins",
+        loading: false,
+      });
+    }
+  },
   fetchTrendingCoins: async () => {
     try {
       set({ loading: true, error: null });
@@ -200,7 +248,6 @@ export const usePreferenceStore = create<PreferenceState>()((set, get) => ({
     set({ WalletDetails: { coinCount, totalAmount } });
   },
 
-  // ✅ New central logic: Add Coin to Wallet + Call API
   addCoinToWallet: async (coin, qty) => {
     const { WalletCoin, subID } = get();
     const type = "purchase";
@@ -209,7 +256,6 @@ export const usePreferenceStore = create<PreferenceState>()((set, get) => ({
       coin.current_price
     } ${get().currency.code}`;
 
-    // Update local wallet
     set(() => {
       const existing = WalletCoin.find((c) => c.coin.id === coin.id);
       const updated = existing
