@@ -7,13 +7,12 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 const WalletCard = () => {
-  const Data = useSession();
-  const { Trending, loading, Favorites, WalletDetails, currency } =
+  const { Trending, loading, Favorites, WalletDetails, currency, subID } =
     usePreferenceStore();
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-      {!Data.data ? (
+      {subID ? (
         <div className="max-w-[92vw] ring-2 ring-gray-200 dark:ring-gray-700 py-4 px-5 rounded-xl bg-white dark:bg-gray-900 shadow-sm">
           <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100 flex">
             <Wallet className="mr-3" /> Wallet Summary
@@ -40,14 +39,14 @@ const WalletCard = () => {
         <LoginPlaceholder title="Wallet" />
       )}
 
-      {!Data.data ? (
+      {subID ? (
         <div className="max-w-[92vw] ring-2 ring-gray-200 dark:ring-gray-700 py-2 px-3 rounded-xl bg-white dark:bg-gray-900">
           {/* Header */}
           <div className="flex justify-between items-center pt-2 mb-3 px-1 truncate">
             <h3 className="text-gray-900 dark:text-white font-semibold text-base leading-6 flex">
               <BookmarkCheck className="mr-3" /> WishList
             </h3>
-            {Favorites.length && (
+            {Favorites.length > 0 && (
               <Link
                 href="/dashboard/trending"
                 className="flex items-center space-x-1 font-semibold text-slate-700 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
