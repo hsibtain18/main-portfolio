@@ -32,7 +32,7 @@ export async function apiGet<T>(path:string,token:string):Promise<T>{
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
     },
-    });
+    }); 
      if (!res.ok) throw new Error(`POST ${path} failed: ${res.status}`);
   return res.json();
 }

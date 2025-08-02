@@ -95,28 +95,38 @@ export default function CryptoTable() {
   const reloadData = async () => {
     await fetchCoinList(currency.code);
     await fetchTrendingCoins();
-    setLastUpdated(new Date());
+
+    setTimeout(async () => {
+      if (subID) {
+        try {
+          const favIds: string[] = await apiGet(`wishlist/${subID}`, subID);
+          const favCoins = usePreferenceStore
+            .getState()
+            .CoinList.filter((coin) => favIds.includes(coin.id));
+          setFavorites(favCoins);
+        } catch (err) {
+          console.error("Error fetching favorites", err);
+          setFavorites([]);
+        }
+      } else {
+        setFavorites([]);
+      }
+
+      setLastUpdated(new Date());
+    }, 100);
   };
-  const getAllFavorites = () => {
-    const fav = apiGet(`wishlist/` + subID, subID).then((val: any) => {
-      console.log(val);
-    });
-  };
-  useEffect(() => {
-    if (subID) {
-      getAllFavorites();
-    }
-  }, [subID]);
 
   useEffect(() => {
+    if (!currency.code) return;
     reloadData();
+
     const interval = setInterval(() => {
       reloadData();
     }, REFRESH_INTERVAL_MS);
+
     setMounted(true);
     return () => clearInterval(interval);
-  }, [currency.code]);
-
+  }, [currency.code, subID]);
   const handleExpand = async (coinId: string) => {
     if (expandedRow === coinId) {
       setExpandedRow(null);
