@@ -36,3 +36,16 @@ export async function apiGet<T>(path:string,token:string):Promise<T>{
      if (!res.ok) throw new Error(`POST ${path} failed: ${res.status}`);
   return res.json();
 }
+export async function apiPut<T>(path: string, token: string, body: any): Promise<T> {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) throw new Error(`PATCH ${path} failed: ${res.status}`);
+  return res.json();
+}

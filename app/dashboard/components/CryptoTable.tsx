@@ -94,15 +94,17 @@ export default function CryptoTable() {
     return 0;
   }
 
-  const sortedData = [...CoinList].sort((a, b) => {
-    for (const { key, direction } of sortState) {
-      const aVal = a[key];
-      const bVal = b[key];
-      const result = compareValues(aVal, bVal, direction);
-      if (result !== 0) return result;
-    }
-    return 0;
-  });
+const sortedData = Array.isArray(CoinList)
+  ? [...CoinList].sort((a, b) => {
+      for (const { key, direction } of sortState) {
+        const aVal = a[key];
+        const bVal = b[key];
+        const result = compareValues(aVal, bVal, direction);
+        if (result !== 0) return result;
+      }
+      return 0;
+    })
+  : [];
 
   const filteredData = sortedData.filter(
     (coin) =>

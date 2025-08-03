@@ -59,7 +59,6 @@ export default function LoginForm() {
     if (result?.error) {
       setError(result.error);
     } else if (result?.ok) {
-      debugger
       const interval = setInterval(async () => {
         const session = await getSession();
         if (session) {

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Coin } from "../constant/experienceData";
-import { apiGet, apiPost } from "@/lib/apis";
+import { apiGet, apiPut, apiPost } from "@/lib/apis";
 
 type Currency = {
   code: string;
@@ -57,6 +57,12 @@ type PreferenceState = {
   addCoinToWallet: (coin: Coin, qty: number) => Promise<void>;
   recalculateWalletDetails: () => void;
   fetchWalletCoins: () => Promise<void>;
+  loadAllData: () => Promise<void>;
+  reloadAllData: () => Promise<void>;
+  fetchPreferences: (userId: string) => Promise<{ theme: "light" | "dark"; currency: Currency } | null>;
+  // Preferences Updaters
+  toggleTheme: () => Promise<"light" | "dark" | null>;
+  changeCurrency: (newCurrency: Currency) => Promise<void>;
 };
 export type TrendingData = {
   coins: {
@@ -256,15 +262,15 @@ export const usePreferenceStore = create<PreferenceState>()((set, get) => ({
       coin.current_price
     } ${get().currency.code}`;
 
-  const newEntry = {
-    coin,
-    qty,
-    purchasePrice: coin.current_price,
-  };
+    const newEntry = {
+      coin,
+      qty,
+      purchasePrice: coin.current_price,
+    };
 
-  set(() => ({
-    WalletCoin: [...WalletCoin, newEntry],
-  }));
+    set(() => ({
+      WalletCoin: [...WalletCoin, newEntry],
+    }));
     get().recalculateWalletDetails();
     try {
       await apiPost(`wallet/`, subID, {
@@ -278,5 +284,81 @@ export const usePreferenceStore = create<PreferenceState>()((set, get) => ({
     } catch (err) {
       console.error("Failed to sync wallet entry with backend:", err);
     }
+  },
+fetchPreferences: async (userId: string) => {
+  try {
+    const res: any = await apiGet(`preferences/${userId}`, userId);
+    const preferences = res.preferences || {};
+
+    const theme = preferences.theme || "light";
+    const currency =
+      preferences.currency || {
+        code: "USD",
+        name: "US Dollar",
+        symbol: "$",
+        flag: "https://flagcdn.com/us.svg",
+      };
+
+    set({ theme, currency });
+    return { theme, currency }; // ✅ return for usage in UI
+  } catch (err) {
+    console.error("Failed to fetch preferences:", err);
+    return null;
+  }
+},
+
+  
+toggleTheme: async () => {
+  const newTheme = get().theme === "light" ? "dark" : "light";
+  set({ theme: newTheme });
+
+  try {
+    await apiPost(`preferences`, '', {
+      theme: newTheme,
+      currency: get().currency,
+      userId: get().subID,
+    });
+
+    return newTheme;  
+  } catch (err) {
+    console.error("Failed to update theme:", err);
+    return null; 
+  }
+},
+
+  // === Change Currency ===
+  changeCurrency: async (newCurrency: Currency) => {
+    set({ currency: newCurrency });
+    try {
+      await apiPost(`preferences`,'', {
+        currency: newCurrency,
+        theme: get().theme,
+        userId: get().subID,
+      });
+    } catch (err) {
+      console.error("Failed to update currency:", err);
+    }
+  },
+  loadAllData: async () => {
+    const subID = get().subID;
+    if (!subID) return;
+
+    try {
+      // 1. Fetch user preferences first
+      await get().fetchPreferences(subID);
+      // 2. Fetch coin list based on loaded currency code
+      const currencyCode = get().currency.code;
+      await get().fetchCoinList(currencyCode);
+
+      // 3. Fetch wallet coins now
+      await get().fetchWalletCoins();
+    } catch (err) {
+      console.error("Error loading all data:", err);
+    }
+  },
+
+  // Reload method (calls loadAllData)
+  reloadAllData: async () => {
+    await get().loadAllData();
   },
 }));
