@@ -146,6 +146,7 @@ export default function Header() {
 
   const {
     currency,
+    subID,
     changeCurrency,
     toggleTheme,
     reloadAllData,
@@ -190,10 +191,13 @@ export default function Header() {
         { rotate: 360, scale: 1.2, duration: 0.4, ease: "power2.inOut" }
       );
     }
-
-    toggleTheme().then((newTheme: any) => {
-      setTheme(newTheme);  
-    });
+    if (subID) {
+      toggleTheme().then((newTheme: any) => {
+        setTheme(newTheme);
+      });
+    } else {
+      setTheme(theme === "dark" ? "light" : "dark");
+    }
   };
 
   const handleCurrencyChange = (newCurrency: typeof currency) => {

@@ -332,14 +332,18 @@ export const usePreferenceStore = create<PreferenceState>()((set, get) => ({
 
   changeCurrency: async (newCurrency: Currency) => {
     set({ currency: newCurrency });
-    try {
-      await apiPost(`preferences`, "", {
-        currency: newCurrency,
-        theme: get().theme,
-        userId: get().subID,
-      });
-    } catch (err) {
-      console.error("Failed to update currency:", err);
+    if (!get().subID) {
+      return;
+    } else {
+      try {
+        await apiPost(`preferences`, "", {
+          currency: newCurrency,
+          theme: get().theme,
+          userId: get().subID,
+        });
+      } catch (err) {
+        console.error("Failed to update currency:", err);
+      }
     }
   },
   loadAllData: async () => {
