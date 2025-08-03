@@ -238,7 +238,7 @@ export default function LoginForm() {
             disabled={loading}
           >
             <img
-              src="https://www.svgrepo.com/show/475651/github-color.svg"
+              src="https://cdn.simpleicons.org/github/181717"
               alt="GitHub icon"
               className="h-6 w-6 mr-3"
             />
