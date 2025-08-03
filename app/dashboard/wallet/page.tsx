@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import Image from "next/image";
-import { Coin } from "@/app/constant/experienceData";
 import { usePreferenceStore } from "@/app/stores/useDashboardStore";
 import LoginPlaceholder from "@/app/components/LoginPlaceholder";
 import AddCoinDialog from "@/app/components/AddCoinDialog";
@@ -19,21 +18,26 @@ export default function WalletComponent() {
     fetchWalletCoins,
     setWalletDetails,
     setWalletCoin,
+    fetchCoinList,
   } = usePreferenceStore();
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Fetch wallet coins on load
+  // Initial load: fetch coins and wallet
   useEffect(() => {
-    if (subID && CoinList.length > 0) {
-      fetchWalletCoins();
-    }
-  }, [subID, CoinList]);
+    const loadData = async () => {
+      if (subID && currency?.code) {
+        await fetchCoinList(currency.code); // Load market data
+        await fetchWalletCoins();           // Then load wallet entries
+      }
+    };
+    loadData();
+  }, [subID, currency.code]); // <- consistent dependency list
 
-  // Compute wallet entries from store
+  // Compute wallet entries from WalletCoin
   const walletEntries = useMemo(() => {
     return WalletCoin.map((entry: any, index) => ({
-      entryID: entry.entryID ?? `${entry.coin.id}-${index}`, // fallback if missing
+      entryID: entry.entryID ?? `${entry.coin.id}-${index}`,
       userId: subID,
       qty: entry.qty,
       price: entry.purchasePrice,
@@ -46,17 +50,19 @@ export default function WalletComponent() {
     }));
   }, [WalletCoin, subID]);
 
-  // Update summary from wallet entries
+  // Summary update
   useEffect(() => {
     const total = walletEntries.reduce(
       (sum, e) => sum + e.qty * (e.coin?.current_price || 0),
       0
     );
+
+    const uniqueCoinIds = new Set(walletEntries.map((e) => e.coinId));
     setWalletDetails({
-      coinCount: walletEntries.length,
+      coinCount: uniqueCoinIds.size,
       totalAmount: total,
     });
-  }, [walletEntries]);
+  }, [walletEntries, setWalletDetails]);
 
   const totalValue = walletEntries.reduce(
     (sum, e) => sum + e.qty * (e.coin?.current_price || 0),
@@ -92,8 +98,10 @@ export default function WalletComponent() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4">
-            <div className="text-sm text-muted-foreground">Entries</div>
-            <div className="text-xl font-semibold">{walletEntries.length}</div>
+            <div className="text-sm text-muted-foreground">Unique Coins</div>
+            <div className="text-xl font-semibold">
+              {new Set(walletEntries.map((e) => e.coinId)).size}
+            </div>
           </CardContent>
         </Card>
         <Card>

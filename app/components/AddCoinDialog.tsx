@@ -29,7 +29,9 @@ const AddCoinDialog = ({ open, setOpen }: Props) => {
     setSelectedCoin(null);
     setQty(0.00001);
   };
-
+if(!CoinList.length){
+    return null;
+}
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
