@@ -69,8 +69,7 @@ export default function CryptoTable() {
   const [mounted, setMounted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-
+ 
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const {
@@ -82,6 +81,8 @@ export default function CryptoTable() {
     setCoin,
     setFavorites,
     subID,
+    lastUpdated,
+    setLastUpdated
   } = usePreferenceStore();
 
   function compareValues<T>(a: T, b: T, direction: SortDirection): number {
@@ -94,17 +95,17 @@ export default function CryptoTable() {
     return 0;
   }
 
-const sortedData = Array.isArray(CoinList)
-  ? [...CoinList].sort((a, b) => {
-      for (const { key, direction } of sortState) {
-        const aVal = a[key];
-        const bVal = b[key];
-        const result = compareValues(aVal, bVal, direction);
-        if (result !== 0) return result;
-      }
-      return 0;
-    })
-  : [];
+  const sortedData = Array.isArray(CoinList)
+    ? [...CoinList].sort((a, b) => {
+        for (const { key, direction } of sortState) {
+          const aVal = a[key];
+          const bVal = b[key];
+          const result = compareValues(aVal, bVal, direction);
+          if (result !== 0) return result;
+        }
+        return 0;
+      })
+    : [];
 
   const filteredData = sortedData.filter(
     (coin) =>
@@ -165,7 +166,7 @@ const sortedData = Array.isArray(CoinList)
     await fetchTrendingCoins();
 
     if (subID) {
-     await apiGet("wallet/" + subID, subID).then((val) => {});
+      await apiGet("wallet/" + subID, subID).then((val) => {});
       try {
         const favIds: string[] = await apiGet(`wishlist/${subID}`, subID);
 
@@ -203,7 +204,7 @@ const sortedData = Array.isArray(CoinList)
       setFavorites([]);
     }
 
-    setLastUpdated(new Date());
+    setLastUpdated(new Date())
   };
 
   useEffect(() => {
@@ -281,8 +282,11 @@ const sortedData = Array.isArray(CoinList)
           className="max-w-sm"
         />
         {lastUpdated && (
-          <Badge variant="outline" className="text-sm text-muted-foreground">
-            <Clock className="h-3 w-3 mr-1" />
+          <Badge
+            variant="outline"
+            className="text-xs text-muted-foreground flex items-center gap-1"
+          >
+            <Clock size={12} />
             Updated: {lastUpdated.toLocaleTimeString()}
           </Badge>
         )}

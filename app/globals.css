@@ -106,8 +106,11 @@
 
   --sidebar-ring: oklch(0.556 0 0);
 }
-html, body,a ,svg {
+body {
   cursor: none;
+}
+a, button, [data-hoverable], input, select, textarea {
+  cursor: none !important;
 }
 .bg-header {
   background-color: var(--background-color);

@@ -10,7 +10,7 @@ const navItems = [
   { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
   { name: 'Wallet', icon: Package, href: '/dashboard/wallet' },
   { name: 'Wishlist', icon: MessageSquareHeart, href: '/dashboard/wishlist' },
-  { name: 'News', icon: Newspaper, href: '/orders' },
+  // { name: 'News', icon: Newspaper, href: '/orders' },
 ];
 
 export default function Sidebar() {
