@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -8,6 +8,7 @@ import Image from "next/image";
 import { usePreferenceStore } from "@/app/stores/useDashboardStore";
 import LoginPlaceholder from "@/app/components/LoginPlaceholder";
 import AddCoinDialog from "@/app/components/AddCoinDialog";
+import { apiDelete } from "@/lib/apis";
 
 export default function WalletComponent() {
   const {
@@ -23,46 +24,30 @@ export default function WalletComponent() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Initial load: fetch coins and wallet
+  // Fetch coins and wallet
   useEffect(() => {
     const loadData = async () => {
       if (subID && currency?.code) {
-        await fetchCoinList(currency.code); // Load market data
-        await fetchWalletCoins();           // Then load wallet entries
+        await fetchCoinList(currency.code);
+        await fetchWalletCoins();
       }
     };
     loadData();
-  }, [subID, currency.code]); // <- consistent dependency list
+  }, [subID, currency.code]);
 
-  // Compute wallet entries from WalletCoin
-  const walletEntries = useMemo(() => {
-    return WalletCoin.map((entry: any, index) => ({
-      entryID: entry.entryID ?? `${entry.coin.id}-${index}`,
-      userId: subID,
-      qty: entry.qty,
-      price: entry.purchasePrice,
-      amount: entry.qty * entry.purchasePrice,
-      description: "",
-      coinId: entry.coin.id,
-      type: "purchase",
-      createdAt: "",
-      coin: entry.coin,
-    }));
-  }, [WalletCoin, subID]);
-
-  // Summary update
-  useEffect(() => {
-    const total = walletEntries.reduce(
-      (sum, e) => sum + e.qty * (e.coin?.current_price || 0),
-      0
-    );
-
-    const uniqueCoinIds = new Set(walletEntries.map((e) => e.coinId));
-    setWalletDetails({
-      coinCount: uniqueCoinIds.size,
-      totalAmount: total,
-    });
-  }, [walletEntries, setWalletDetails]);
+  // Directly compute wallet entries (avoid stale useMemo)
+  const walletEntries = WalletCoin.map((entry: any, index) => ({
+    entryID: entry.entryID ?? `${entry.coin.id}-${index}`,
+    userId: subID,
+    qty: entry.qty,
+    price: entry.purchasePrice,
+    amount: entry.qty * entry.purchasePrice,
+    description: "",
+    coinId: entry.coin.id,
+    type: "purchase",
+    createdAt: "",
+    coin: entry.coin,
+  }));
 
   const totalValue = walletEntries.reduce(
     (sum, e) => sum + e.qty * (e.coin?.current_price || 0),
@@ -76,7 +61,17 @@ export default function WalletComponent() {
 
   const profit = totalValue - initialInvestment;
 
-  const deleteCoin = (entryID: string) => {
+  // Keep wallet summary in sync
+  useEffect(() => {
+    const uniqueCoinIds = new Set(walletEntries.map((e) => e.coinId));
+    setWalletDetails({
+      coinCount: uniqueCoinIds.size,
+      totalAmount: totalValue,
+    });
+  }, [WalletCoin]); // depend directly on WalletCoin
+
+  const deleteCoin = async (entryID: string) => {
+    await apiDelete(`wallet/${subID}/${entryID}`, subID);
     const updated = WalletCoin.filter((entry: any, index) => {
       const id = entry.entryID ?? `${entry.coin.id}-${index}`;
       return id !== entryID;

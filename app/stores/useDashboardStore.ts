@@ -256,16 +256,15 @@ export const usePreferenceStore = create<PreferenceState>()((set, get) => ({
       coin.current_price
     } ${get().currency.code}`;
 
-    set(() => {
-      const existing = WalletCoin.find((c) => c.coin.id === coin.id);
-      const updated = existing
-        ? WalletCoin.map((item) =>
-            item.coin.id === coin.id ? { ...item, qty: item.qty + qty } : item
-          )
-        : [...WalletCoin, { coin, qty, purchasePrice: coin.current_price }];
-      return { WalletCoin: updated };
-    });
+  const newEntry = {
+    coin,
+    qty,
+    purchasePrice: coin.current_price,
+  };
 
+  set(() => ({
+    WalletCoin: [...WalletCoin, newEntry],
+  }));
     get().recalculateWalletDetails();
     try {
       await apiPost(`wallet/`, subID, {
