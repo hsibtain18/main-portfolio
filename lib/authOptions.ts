@@ -9,15 +9,9 @@ import {
   AuthenticationDetails,
 } from "amazon-cognito-identity-js";
 
-// Setup Cognito User Pool
-const userPool = new CognitoUserPool({
-  UserPoolId: process.env.COGNITO_USER_POOL_ID!,
-  ClientId: process.env.COGNITO_CLIENT_ID!,
-});
-
 export const authOptions = {
   providers: [
-    // ✅ Google Provider with explicit scopes
+    // ✅ Google login with explicit scopes
     GoogleProvider({
       clientId: process.env.GOOGLE_ID!,
       clientSecret: process.env.GOOGLE_SECRET!,
@@ -28,11 +22,11 @@ export const authOptions = {
       },
     }),
 
-    // ✅ GitHub Provider (optional)
-    // GitHubProvider({
-    //   clientId: process.env.GITHUB_ID!,
-    //   clientSecret: process.env.GITHUB_SECRET!,
-    // }),
+    // ✅ GitHub login
+    GitHubProvider({
+      clientId: process.env.GITHUB_ID!,
+      clientSecret: process.env.GITHUB_SECRET!,
+    }),
 
     // ✅ Cognito Email/Password Login
     CredentialsProvider({
@@ -46,6 +40,23 @@ export const authOptions = {
           console.error("Missing credentials");
           return null;
         }
+
+        // ✅ Lazy-read environment vars (for Amplify runtime)
+        const poolId = process.env.COGNITO_USER_POOL_ID;
+        const clientId = process.env.COGNITO_CLIENT_ID;
+
+        if (!poolId || !clientId) {
+          console.error("Missing Cognito ENV vars:", {
+            COGNITO_USER_POOL_ID: poolId,
+            COGNITO_CLIENT_ID: clientId,
+          });
+          return null;
+        }
+
+        const userPool = new CognitoUserPool({
+          UserPoolId: poolId,
+          ClientId: clientId,
+        });
 
         return new Promise((resolve, reject) => {
           const authDetails = new AuthenticationDetails({
@@ -86,14 +97,12 @@ export const authOptions = {
   ],
 
   callbacks: {
-    // ✅ Add userId from different providers
     async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
         token.userId = (user as any).id ?? (user as any).sub ?? null;
       }
       return token;
     },
-
     async session({ session, token }: { session: Session; token: JWT }) {
       if (token?.userId) {
         session.user.userId = token.userId as string;
@@ -102,11 +111,11 @@ export const authOptions = {
     },
   },
 
-  // ✅ Redirect to custom login page
+  // ✅ Custom login page
   pages: {
     signIn: "/login",
   },
 
-  // ✅ Secret for signing JWT
+  // ✅ JWT signing secret
   secret: process.env.NEXTAUTH_SECRET,
 };
