@@ -124,3 +124,4 @@ console.log("COGNITO_CLIENT_ID:", process.env.COGNITO_CLIENT_ID);
 console.log("GOOGLE_ID:", process.env.GOOGLE_ID);
 console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
 console.log("✅ Runtime check: NEXTAUTH_SECRET is", process.env.NEXTAUTH_SECRET ? "available ✅" : "missing ❌");
+console.log("🔍 Full process.env dump:", process.env);
