@@ -11,7 +11,6 @@ import {
 
 export const authOptions = {
   providers: [
-    // ✅ Google login with explicit scopes
     GoogleProvider({
       clientId: process.env.GOOGLE_ID!,
       clientSecret: process.env.GOOGLE_SECRET!,
@@ -22,13 +21,12 @@ export const authOptions = {
       },
     }),
 
-    // ✅ GitHub login
+ 
     GitHubProvider({
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!,
     }),
 
-    // ✅ Cognito Email/Password Login
     CredentialsProvider({
       name: "EmailLogin",
       credentials: {
@@ -119,9 +117,3 @@ export const authOptions = {
   // ✅ JWT signing secret
   secret: process.env.NEXTAUTH_SECRET,
 };
-console.log("COGNITO_USER_POOL_ID:", process.env.COGNITO_USER_POOL_ID);
-console.log("COGNITO_CLIENT_ID:", process.env.COGNITO_CLIENT_ID);
-console.log("GOOGLE_ID:", process.env.GOOGLE_ID);
-console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
-console.log("✅ Runtime check: NEXTAUTH_SECRET is", process.env.NEXTAUTH_SECRET ? "available ✅" : "missing ❌");
-console.log("🔍 Full process.env dump:", process.env);

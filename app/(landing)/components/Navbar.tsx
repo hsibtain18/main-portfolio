@@ -12,7 +12,7 @@ const navLinks = [
   { label: "Work", href: "#resume" },
   { label: "Projects", href: "#pastProject" },
   { label: "Contact", href: "#contact" },
-  // { label: "Dashboard", href: "/dashboard" },
+  { label: "Dashboard", href: "/dashboard" },
   {
     label: "Resume",
     href: "/Syed_Hassan_Sibtain.pdf",
