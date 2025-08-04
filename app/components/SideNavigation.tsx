@@ -9,17 +9,18 @@ import {
   Menu,
   X,
   DownloadIcon,
-  MessageSquareHeart,
+  BookmarkCheck,
+  PictureInPicture
 } from "lucide-react";
 import clsx from "clsx";
 
 const navItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { name: "Wallet", icon: Package, href: "/dashboard/wallet" },
-  { name: "Wishlist", icon: MessageSquareHeart, href: "/dashboard/wishlist" },
+  { name: "Wishlist", icon: BookmarkCheck, href: "/dashboard/wishlist" },
   {
     name: "Portfolio",
-    icon: MessageSquareHeart,
+    icon: PictureInPicture,
     href: "/",
   },
   {

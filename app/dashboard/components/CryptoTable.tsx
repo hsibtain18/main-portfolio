@@ -337,7 +337,7 @@ export default function CryptoTable() {
                           size={16}
                         />
                       ) : (
-                        <BookmarkCheck
+                        <Bookmark
                           className="text-muted-foreground"
                           size={16}
                         />
