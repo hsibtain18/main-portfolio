@@ -119,3 +119,8 @@ export const authOptions = {
   // ✅ JWT signing secret
   secret: process.env.NEXTAUTH_SECRET,
 };
+console.log("COGNITO_USER_POOL_ID:", process.env.COGNITO_USER_POOL_ID);
+console.log("COGNITO_CLIENT_ID:", process.env.COGNITO_CLIENT_ID);
+console.log("GOOGLE_ID:", process.env.GOOGLE_ID);
+console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
+console.log("✅ Runtime check: NEXTAUTH_SECRET is", process.env.NEXTAUTH_SECRET ? "available ✅" : "missing ❌");
