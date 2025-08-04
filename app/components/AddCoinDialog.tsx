@@ -17,7 +17,7 @@ const AddCoinDialog = ({ open, setOpen }: Props) => {
   const { CoinList, currency, addCoinToWallet } = usePreferenceStore();
 
   const [selectedCoin, setSelectedCoin] = useState<Coin | null>(null);
-  const [qty, setQty] = useState(0.00001);
+  const [qty, setQty] = useState(0.1);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAdd = async () => {
