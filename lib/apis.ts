@@ -6,6 +6,7 @@ export async function apiPost<T>(path: string, token: string, data: any): Promis
     headers: {
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
+      "Client-id":token,
     },
     body: JSON.stringify(data),
   });
@@ -31,6 +32,7 @@ export async function apiGet<T>(path:string,token:string):Promise<T>{
          headers: {
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
+      "Client-id":token,
     },
     }); 
      if (!res.ok) throw new Error(`POST ${path} failed: ${res.status}`);

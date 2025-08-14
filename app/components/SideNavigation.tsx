@@ -23,6 +23,16 @@ const navItems = [
     icon: PictureInPicture,
     href: "/",
   },
+   {
+    name: "Accounts",
+    icon: PictureInPicture,
+    href: "/dashboard/accounts",
+  },
+    {
+    name: "Financial Accounts",
+    icon: PictureInPicture,
+    href: "/dashboard/transferamount",
+  },
   {
     name: "Download Resume",
     icon: DownloadIcon,
