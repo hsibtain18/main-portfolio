@@ -47,10 +47,7 @@ let subs : Account[]= [];
   const usdToAed = async (amountUSD: number, feeUSD: number, useLiveRate: boolean, overrideRate?: number) => {
     setLoading(true);
     try {
-    //   await fetch("/api/accounts/transfer/usd-to-aed", {
-    //     method: "POST", headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ amountUSD, feeUSD, useLiveRate, overrideRate }),
-    //   });
+
      await  apiPost("accounts/transfer/usd-to-aed/", subID, { amountUSD, feeUSD, useLiveRate, overrideRate })
      .then((val: any) => {
         console.log("Transfer successful:", val);
