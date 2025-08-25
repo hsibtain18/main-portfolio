@@ -211,3 +211,95 @@ export interface Coin {
   price_change_percentage_24h_in_currency: number;
   price_change_percentage_7d_in_currency: number;
 }
+
+export async function getVisitorDetails() {
+  // Basic browser/device info
+  const userAgent = navigator.userAgent;
+  const platform = navigator.platform;
+  const language = navigator.language;
+  const screenRes = `${window.screen.width}x${window.screen.height}`;
+  const colorDepth = window.screen.colorDepth;
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const cookiesEnabled = navigator.cookieEnabled;
+  const localStorageEnabled = !!window.localStorage;
+  const sessionStorageEnabled = !!window.sessionStorage;
+
+  // Referrer and path
+  const referrer = document.referrer || "Direct";
+  const path = window.location.pathname;
+
+  // Timestamp
+  const visitedAt = new Date().toISOString();
+
+  // Network / connection info
+  const connection = (navigator as any).connection || {};
+  const networkType = connection.effectiveType || "unknown";
+  const downlink = connection.downlink || 0;
+  const rtt = connection.rtt || 0;
+
+  // Get IP + Geo location
+  let ip = "unknown",
+    geo = {};
+  try {
+    const ipRes = await fetch("https://ipapi.co/json/");
+    const ipData = await ipRes.json();
+    ip = ipData.ip;
+    geo = {
+      city: ipData.city,
+      region: ipData.region,
+      country: ipData.country_name,
+      latitude: ipData.latitude,
+      longitude: ipData.longitude,
+      postal: ipData.postal,
+      org: ipData.org,
+    };
+  } catch (e) {
+    console.warn("IP/Geo fetch failed", e);
+  }
+
+  return {
+    userAgent,
+    platform,
+    language,
+    screenRes,
+    colorDepth,
+    timezone,
+    cookiesEnabled,
+    localStorageEnabled,
+    sessionStorageEnabled,
+    referrer,
+    path,
+    visitedAt,
+    networkType,
+    downlink,
+    rtt,
+    ip,
+    geo,
+  };
+}
+export async function encryptData(data: any, secret: string) {
+  const text = JSON.stringify(data);
+  const enc = new TextEncoder();
+  const encodedText = enc.encode(text);
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    { name: "AES-GCM" },
+    false,
+    ["encrypt"]
+  );
+
+  const iv = crypto.getRandomValues(new Uint8Array(12)); // Initialization vector
+  const encryptedBuffer = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    encodedText
+  );
+
+  // Convert to base64 for sending
+  return {
+    iv: Array.from(iv),
+    data: Buffer.from(encryptedBuffer).toString("base64"),
+  };
+}

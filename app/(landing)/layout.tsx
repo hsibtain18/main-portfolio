@@ -6,6 +6,7 @@ export default function LandingLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
   return (
     <> 
       <Providers>

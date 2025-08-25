@@ -22,7 +22,7 @@ const chelaOne = Chela_One({
 });
 export const metadata: Metadata = {
   title: "Syed Hassan Sibtain",
-  description: "An experience Front-End Developer working with JS Framework",
+  description: "An experience Full stack Developer working with JS Framework",
 };
 
 export default function RootLayout({

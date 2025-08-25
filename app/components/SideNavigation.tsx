@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Package,
@@ -10,9 +10,10 @@ import {
   X,
   DownloadIcon,
   BookmarkCheck,
-  PictureInPicture
+  PictureInPicture,
 } from "lucide-react";
 import clsx from "clsx";
+import { usePreferenceStore } from "../stores/useDashboardStore";
 
 const navItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
@@ -23,16 +24,6 @@ const navItems = [
     icon: PictureInPicture,
     href: "/",
   },
-   {
-    name: "Accounts",
-    icon: PictureInPicture,
-    href: "/dashboard/accounts",
-  },
-    {
-    name: "Financial Accounts",
-    icon: PictureInPicture,
-    href: "/dashboard/transferamount",
-  },
   {
     name: "Download Resume",
     icon: DownloadIcon,
@@ -41,9 +32,25 @@ const navItems = [
   },
   // { name: 'News', icon: Newspaper, href: '/orders' },
 ];
+const SavedIds = ["118157127586696784472", "107085570819623400310"];
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { subID } = usePreferenceStore();
+
+  useEffect(() => {
+    if (subID && SavedIds.includes(subID)) {
+      navItems.push({
+        name: "Financial Accounts",
+        icon: PictureInPicture,
+        href: "/dashboard/transferamount",
+      },{
+        name: "Transactions",
+        icon: PictureInPicture,
+        href: "/dashboard/transactions",
+      });
+    }
+  }, [subID]);
 
   return (
     <>
@@ -69,7 +76,7 @@ export default function Sidebar() {
           🚀 My Admin
         </div>
         <nav className="space-y-3">
-          {navItems.map(({ name, icon: Icon, href,download }) => (
+          {navItems.map(({ name, icon: Icon, href, download }) => (
             <Link
               key={name}
               href={href}

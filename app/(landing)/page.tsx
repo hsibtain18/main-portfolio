@@ -7,19 +7,24 @@ import ServicesSection from "./components/ServicesSection";
 import PastProject from "./components/PastProject";
 import ContactUs from "./components/ContactUS";
 import TechStack from "./components/TechStacks";
+import { encryptData, getVisitorDetails } from "../constant/experienceData";
+import useTrackVisit from "../constant/useTrackVisit";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useTrackVisit(); 
+  useEffect(() => {
+ 
+    setMounted(true);
+  }, []);
   if (!mounted) return null; // Prevent hydration mismatch
-
   return (
-   <div>
-    <LandingSection/>
-    <TechStack/>
-    <ServicesSection/>
-    <PastProject/>
-    <ContactUs/>
-   </div>
+    <div>
+      <LandingSection />
+      <TechStack />
+      <ServicesSection />
+      <PastProject />
+      <ContactUs />
+    </div>
   );
 }
