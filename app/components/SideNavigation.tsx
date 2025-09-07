@@ -48,6 +48,11 @@ export default function Sidebar() {
         name: "Transactions",
         icon: PictureInPicture,
         href: "/dashboard/transactions",
+      },{
+        name: "Group Transactions",
+        icon: PictureInPicture,
+        href: "/dashboard/grouptransaction",
+      
       });
     }
   }, [subID]);

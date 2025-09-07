@@ -62,6 +62,7 @@ export default function AddTransactionDialog({ subs, onTransactionAdded, categor
       setSelectedSubAccount("");
       setSelectedCategory("");
       setNewCategoryText("");
+      // close dialog here  
       
       onTransactionAdded(); // Notify the parent component to re-fetch data
     } finally {

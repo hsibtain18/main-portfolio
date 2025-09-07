@@ -83,7 +83,6 @@ export default function Transactions() {
             <TableRow className="bg-gray-100 dark:bg-gray-800">
               <TableHead>Sub Account</TableHead>
               <TableHead>Category</TableHead>
-              <TableHead>Description</TableHead>
               <TableHead>Amount</TableHead>
               <TableHead>Currency</TableHead>
               <TableHead>Date</TableHead>
@@ -92,9 +91,8 @@ export default function Transactions() {
           <TableBody>
             {transactions.map((tx) => (
               <TableRow key={tx.transactionId}>
-                <TableCell>{tx?.meta?.fromAccount.name}</TableCell>
-                <TableCell>{tx?.category ?? tx?.kind}</TableCell>
-                <TableCell>{tx?.description}</TableCell>
+                <TableCell>{tx?.subAccountDetails?.name}</TableCell>
+                <TableCell>{tx?.categoryDetails?.name ?? tx?.kind}</TableCell>
                 <TableCell>{tx?.amount}</TableCell>
                 <TableCell>{tx?.currency}</TableCell>
                 <TableCell>
