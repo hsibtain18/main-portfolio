@@ -272,8 +272,14 @@ export default function ContactSection() {
             title="Phone"
             detail={
               <>
-                <p>UAE: +971 528 4839 65</p>
-                <p>PK: +92 336 202 4417</p>
+                <p>
+
+                <a href="tel:+971528483965">UAE: +971 528 4839 65</a>
+                </p>
+                                <p>
+
+                <a href="tel:+971555428651">UAE: +971 55 542 8651</a>
+                </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Call or WhatsApp me anytime!
                 </p>
