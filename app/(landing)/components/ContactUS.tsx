@@ -278,7 +278,7 @@ export default function ContactSection() {
                 </p>
                                 <p>
 
-                <a href="tel:+971555428651">UAE: +971 55 542 8651</a>
+                <a href="tel:+971555428651">UAE: +971 555 4286 51</a>
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Call or WhatsApp me anytime!
