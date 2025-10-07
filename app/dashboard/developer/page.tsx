@@ -1,200 +1,214 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import toast, { Toaster } from "react-hot-toast";
-import { apiPost } from "@/lib/apis";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "react-hot-toast";
+import { apiGet, apiPost } from "@/lib/apis";
 import { usePreferenceStore } from "@/app/stores/useDashboardStore";
 
-export default function NewDeveloperPage() {
-  const [form, setForm] = useState({
+interface Contact {
+  name: string;
+  phone: string;
+}
+
+interface Developer {
+  developerId: string;
+  name: string;
+  description: string;
+  startDate: string;
+  logos: string[];
+  contacts: Contact[];
+  lastRevenue: string;
+}
+
+export default function DevelopersPage() {
+  const [developers, setDevelopers] = useState<Developer[]>([]);
+  const [open, setOpen] = useState(false);
+  const [newDev, setNewDev] = useState<Partial<Developer>>({
     name: "",
     description: "",
     startDate: "",
+    logos: [],
+    contacts: [],
     lastRevenue: "",
-    logos: [] as string[],
-    contactPersons: [] as { name: string; phone: string }[],
   });
   const { subID } = usePreferenceStore();
 
-  const [logoUrl, setLogoUrl] = useState("");
-  const [contact, setContact] = useState({ name: "", phone: "" });
+  const [contactName, setContactName] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const addLogo = () => {
-    if (!logoUrl.trim()) return toast.error("Enter a valid logo URL");
-    setForm((prev) => ({ ...prev, logos: [...prev.logos, logoUrl.trim()] }));
-    setLogoUrl("");
-    toast.success("Logo added");
-  };
-
-  const addContact = () => {
-    if (!contact.name || !contact.phone) return toast.error("Enter both name and phone number");
-    setForm((prev) => ({
-      ...prev,
-      contactPersons: [...prev.contactPersons, contact],
-    }));
-    setContact({ name: "", phone: "" });
-    toast.success("Contact added");
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.name.trim()) return toast.error("Developer name is required");
-
+  /* ---------------- FETCH DEVELOPERS ---------------- */
+  const fetchDevelopers = async () => {
     try {
-      const res = await fetch("/api/developers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      const restp =  await apiPost("developers",subID, form);
-      if (!res.ok) throw new Error("Failed to save developer");
-
-      toast.success("Developer added successfully!");
-      setForm({
-        name: "",
-        description: "",
-        startDate: "",
-        lastRevenue: "",
-        logos: [],
-        contactPersons: [],
-      });
-    } catch (error) {
-      console.error(error);
-      toast.error("Error saving developer");
+      const res: any = await apiGet("developers",subID); // proxy to Express
+      setDevelopers(res.developers || []);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load developers");
     }
   };
 
+  useEffect(() => {
+    fetchDevelopers();
+  }, []);
+
+  /* ---------------- ADD NEW DEVELOPER ---------------- */
+  const handleAddDeveloper = async () => {
+    if (!newDev.name) {
+      toast.error("Name is required");
+      return;
+    }
+
+    try {
+    //   await axios.post("/api/developers", newDev);
+      await apiPost("developers",subID, newDev ); // proxy to Express
+      toast.success("Developer added successfully!");
+      setOpen(false);
+      setNewDev({
+        name: "",
+        description: "",
+        startDate: "",
+        logos: [],
+        contacts: [],
+        lastRevenue: "",
+      });
+      fetchDevelopers();
+    } catch (error) {
+      console.error(error);
+      toast.error("Error adding developer");
+    }
+  };
+
+  /* ---------------- ADD CONTACT TO TEMP LIST ---------------- */
+  const addContact = () => {
+    if (!contactName || !contactPhone) return toast.error("Enter contact details");
+    setNewDev({
+      ...newDev,
+      contacts: [...(newDev.contacts || []), { name: contactName, phone: contactPhone }],
+    });
+    setContactName("");
+    setContactPhone("");
+  };
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <Toaster position="top-right" />
-      <Card className="shadow-lg border border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Add Developer</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Name</Label>
-                <Input
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  required
-                  placeholder="Developer name"
-                />
-              </div>
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Developers</h1>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button>Add Developer</Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Add Developer</DialogTitle>
+            </DialogHeader>
 
-              <div>
-                <Label>Start Date</Label>
-                <Input
-                  type="date"
-                  name="startDate"
-                  value={form.startDate}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div>
-                <Label>Last Revenue (AED)</Label>
-                <Input
-                  name="lastRevenue"
-                  value={form.lastRevenue}
-                  onChange={handleChange}
-                  placeholder="e.g. 1,200,000"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label>Description</Label>
-              <Textarea
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                placeholder="Short description about the developer"
-                rows={4}
+            <div className="space-y-4">
+              <Input
+                placeholder="Name"
+                value={newDev.name || ""}
+                onChange={(e) => setNewDev({ ...newDev, name: e.target.value })}
               />
-            </div>
+              <Textarea
+                placeholder="Description"
+                value={newDev.description || ""}
+                onChange={(e) => setNewDev({ ...newDev, description: e.target.value })}
+              />
+              <Input
+                type="date"
+                value={newDev.startDate || ""}
+                onChange={(e) => setNewDev({ ...newDev, startDate: e.target.value })}
+              />
+              <Input
+                placeholder="Logo URL (comma separated)"
+                value={newDev.logos?.join(", ") || ""}
+                onChange={(e) =>
+                  setNewDev({
+                    ...newDev,
+                    logos: e.target.value.split(",").map((l) => l.trim()),
+                  })
+                }
+              />
+              <Input
+                placeholder="Last Revenue"
+                value={newDev.lastRevenue || ""}
+                onChange={(e) => setNewDev({ ...newDev, lastRevenue: e.target.value })}
+              />
 
-            {/* Logos */}
-            <div className="border-t pt-6">
-              <h2 className="text-lg font-semibold mb-3">Logos</h2>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Logo Image URL"
-                  value={logoUrl}
-                  onChange={(e) => setLogoUrl(e.target.value)}
-                />
-                <Button type="button" onClick={addLogo}>
-                  Add Logo
-                </Button>
-              </div>
-
-              {form.logos.length > 0 && (
-                <div className="flex flex-wrap gap-4 mt-3">
-                  {form.logos.map((url, i) => (
-                    <div key={i} className="relative w-24 h-24 border rounded overflow-hidden">
-                      <img src={url} alt={`Logo ${i}`} className="object-cover w-full h-full" />
-                    </div>
-                  ))}
+              {/* CONTACTS SECTION */}
+              <div className="border-t pt-3 space-y-2">
+                <h3 className="font-semibold">Contacts</h3>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Name"
+                    value={contactName}
+                    onChange={(e) => setContactName(e.target.value)}
+                  />
+                  <Input
+                    placeholder="Phone"
+                    value={contactPhone}
+                    onChange={(e) => setContactPhone(e.target.value)}
+                  />
+                  <Button variant="secondary" onClick={addContact}>
+                    Add
+                  </Button>
                 </div>
-              )}
-            </div>
-
-            {/* Contact Persons */}
-            <div className="border-t pt-6">
-              <h2 className="text-lg font-semibold mb-3">Contact Persons</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <Input
-                  placeholder="Name"
-                  value={contact.name}
-                  onChange={(e) => setContact((prev) => ({ ...prev, name: e.target.value }))}
-                />
-                <Input
-                  placeholder="Phone Number"
-                  value={contact.phone}
-                  onChange={(e) => setContact((prev) => ({ ...prev, phone: e.target.value }))}
-                />
+                <ul className="list-disc ml-4 text-sm">
+                  {newDev.contacts?.map((c, i) => (
+                    <li key={i}>
+                      {c.name} - {c.phone}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <Button type="button" onClick={addContact} className="mt-2">
-                Add Contact
+
+              <Button className="w-full mt-4" onClick={handleAddDeveloper}>
+                Save Developer
               </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
 
-              {form.contactPersons.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  {form.contactPersons.map((c, i) => (
-                    <div
-                      key={i}
-                      className="flex justify-between items-center p-2 border rounded bg-gray-50"
-                    >
-                      <span>
-                        {c.name} — <span className="text-sm text-gray-600">{c.phone}</span>
-                      </span>
-                    </div>
-                  ))}
+      {/* DEVELOPER GRID */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {developers.map((dev) => (
+          <Card key={dev.developerId} className="shadow-md">
+            <CardHeader>
+              <CardTitle>{dev.name}</CardTitle>
+              <p className="text-sm text-gray-500">{dev.startDate}</p>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm mb-2">{dev.description}</p>
+              {dev.logos && dev.logos.length > 0 && (
+                <img
+                  src={dev.logos[0]}
+                  alt={dev.name}
+                  className="w-full h-32 object-contain border rounded-lg"
+                />
+              )}
+              <p className="text-sm mt-2 font-medium">Last Revenue: {dev.lastRevenue || "N/A"}</p>
+
+              {dev.contacts?.length > 0 && (
+                <div className="mt-3">
+                  <h4 className="font-semibold text-sm">Contacts:</h4>
+                  <ul className="text-sm text-gray-600">
+                    {dev.contacts.map((c, i) => (
+                      <li key={i}>
+                        {c.name} - {c.phone}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
-            </div>
-
-            {/* Submit */}
-            <Button type="submit" className="w-full mt-6">
-              Save Developer
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
