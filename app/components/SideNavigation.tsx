@@ -53,7 +53,13 @@ export default function Sidebar() {
         icon: PictureInPicture,
         href: "/dashboard/grouptransaction",
       
-      });
+      },{
+        name: "Developers",
+        icon: PictureInPicture,
+        href: "/dashboard/developer",
+      }
+    )
+      ;
     }
   }, [subID]);
 
