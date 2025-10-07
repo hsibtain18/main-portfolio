@@ -65,7 +65,7 @@ export default function DevelopersPage() {
 
     try {
     //   await axios.post("/api/developers", newDev);
-      await apiPost("developers",subID, newDev ); // proxy to Express
+      await apiPost("developers/",subID, newDev ); // proxy to Express
       toast.success("Developer added successfully!");
       setOpen(false);
       setNewDev({
