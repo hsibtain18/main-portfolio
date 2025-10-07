@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import toast, { Toaster } from "react-hot-toast";
+import { apiPost } from "@/lib/apis";
+import { usePreferenceStore } from "@/app/stores/useDashboardStore";
 
 export default function NewDeveloperPage() {
   const [form, setForm] = useState({
@@ -17,6 +19,7 @@ export default function NewDeveloperPage() {
     logos: [] as string[],
     contactPersons: [] as { name: string; phone: string }[],
   });
+  const { subID } = usePreferenceStore();
 
   const [logoUrl, setLogoUrl] = useState("");
   const [contact, setContact] = useState({ name: "", phone: "" });
@@ -53,7 +56,7 @@ export default function NewDeveloperPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-
+      const restp =  await apiPost("/developers",subID, form);
       if (!res.ok) throw new Error("Failed to save developer");
 
       toast.success("Developer added successfully!");
