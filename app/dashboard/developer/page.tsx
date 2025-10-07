@@ -56,7 +56,7 @@ export default function NewDeveloperPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      const restp =  await apiPost("/developers",subID, form);
+      const restp =  await apiPost("developers",subID, form);
       if (!res.ok) throw new Error("Failed to save developer");
 
       toast.success("Developer added successfully!");
