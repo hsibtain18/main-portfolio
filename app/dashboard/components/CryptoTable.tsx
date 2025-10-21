@@ -137,6 +137,7 @@ export default function CryptoTable() {
       }
     } else {
       try {
+        debugger
         await apiPost("wishlist/", subID, { itemId: coin.id, userId: subID });
         setFavorites([...Favorites, coin]);
       } catch (err) {

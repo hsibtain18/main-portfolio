@@ -11,6 +11,7 @@ import {
   DownloadIcon,
   BookmarkCheck,
   PictureInPicture,
+  LocationEdit,
 } from "lucide-react";
 import clsx from "clsx";
 import { usePreferenceStore } from "../stores/useDashboardStore";
@@ -32,7 +33,7 @@ const navItems = [
   },
   // { name: 'News', icon: Newspaper, href: '/orders' },
 ];
-const SavedIds = ["118157127586696784472", "107085570819623400310"];
+const SavedIds = ["118157127586696784472", "107085570819623400310","f4b81488-e0f1-70d5-c9d9-4e9e26997cab"];
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -53,10 +54,6 @@ export default function Sidebar() {
         icon: PictureInPicture,
         href: "/dashboard/grouptransaction",
       
-      },{
-        name: "Developers",
-        icon: PictureInPicture,
-        href: "/dashboard/developer",
       }
     )
       ;
