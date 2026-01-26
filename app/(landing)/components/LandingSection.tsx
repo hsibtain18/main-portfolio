@@ -57,7 +57,7 @@ export default function LandingSection() {
             <span className="chela-font text-[1.75rem]">
               Full-Stack Developer
             </span>{" "}
-            with <strong>6.5+ years of experience</strong> building scalable,
+            with <strong>7+ years of experience</strong> building scalable,
             high-performance web applications using{" "}
             <span className="chela-font text-[1.35rem]">Angular</span>,{" "}
             <span className="chela-font text-[1.35rem]">React</span>,{" "}
